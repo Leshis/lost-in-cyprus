@@ -9,10 +9,10 @@ const router = createRouter({
       component: () => import('../views/HomeView.vue')  
     },
     { 
-      path: '/limassol', 
-      name: 'limassol', 
-      // This is a "Lazy Load" import—it's another way to do it!
-      component: () => import('../views/LimassolView.vue') 
+      path: '/article/:id', 
+      name: 'ArticleView', 
+      component: () => import('../views/ArticleView.vue'),
+      props: true
     }
   ],
 })

@@ -34,10 +34,8 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 
 const articles = [
-  { title: "Paphos Harbour at Sunset", image: "/paphos-harbour.jpg" },
-  { title: "The Ghost Town of Famagusta", image: "/famagusta.jpg" },
-  { title: "Limassol Castle", image: "/limassol.jpg", path: "/limassol" },
-  //{ title: "Secret Coves of Akamas", image: "/akamas.jpg" }
+  { title: "Limassol Castle", path: "/article/limassol", image: "/lost-in-cyprus/images/limassol.jpg" },
+  { title: "Paphos Harbour", path: "/article/paphos", image: "/lost-in-cyprus/images/paphos.jpg" },
 ];
 
 const currentIndex = ref(0);
