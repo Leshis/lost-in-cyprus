@@ -17,9 +17,9 @@ const route = useRoute();
 
 // This is your "Database" (You can move this to a separate file later)
 const allArticles = {
-  'paphos': { title: 'Paphos Harbour', image: '/paphos-harbour.jpg', content: 'Explore the castle...' },
-  'limassol': { title: 'Limassol Castle', image: '/limassol.jpg', content: 'A walk through history...' },
-  'famagusta': { title: 'Ghost Town', image: '/famagusta.jpg', content: 'The abandoned city...' }
+  'paphos': { title: 'Paphos Harbour', image: '/lost-in-cyprus/paphos-harbour.jpg', content: 'Explore the castle...' },
+  'limassol': { title: 'Limassol Castle', image: '/lost-in-cyprus/limassol.jpg', content: 'A walk through history...' },
+  'famagusta': { title: 'Ghost Town', image: '/lost-in-cyprus/famagusta.jpg', content: 'The abandoned city...' }
 };
 
 // This "finds" the right data based on the URL (/article/paphos)

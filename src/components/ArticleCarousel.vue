@@ -14,7 +14,7 @@
           class="slide-link"
         >
           <div class="slide">
-            <img :src="articles[currentIndex].image" :alt="articles[currentIndex].title" />
+            <img class="carousel-img" :src="articles[currentIndex].image" :alt="articles[currentIndex].title" />
             <div class="slide-content">
               <h2>{{ articles[currentIndex].title }}</h2>
               <p>Click to read article →</p>
@@ -34,8 +34,8 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 
 const articles = [
-  { title: "Limassol Castle", path: "/article/limassol", image: "/lost-in-cyprus/images/limassol.jpg" },
-  { title: "Paphos Harbour", path: "/article/paphos", image: "/lost-in-cyprus/images/paphos.jpg" },
+  { title: "Limassol Castle", path: "/article/limassol", image: "/lost-in-cyprus/limassol.jpg" },
+  { title: "Paphos Harbour", path: "/article/paphos", image: "/lost-in-cyprus/paphos-harbour.jpg" },
 ];
 
 const currentIndex = ref(0);
@@ -87,32 +87,3 @@ onUnmounted(() => {
   clearInterval(timer);
 });
 </script>
-
-<style scoped>
-.carousel {
-  position: relative;
-  width: 100%;
-  max-width: 1000px;
-  margin: 20px auto;
-  height: 450px;
-  overflow: hidden;
-  border-radius: 20px;
-  cursor: pointer; /* Shows user it's clickable */
-  user-select: none; /* Prevents text highlighting while swiping */
-}
-
-/* Rest of your styles remain the same as before */
-.carousel-inner, .slide { width: 100%; height: 100%; }
-img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
-.slide-content {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  background: linear-gradient(transparent, rgba(0,0,0,0.7));
-  color: white; padding: 40px 20px;
-}
-.fade-enter-active, .fade-leave-active { transition: opacity 0.8s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
-.dots { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 8px; }
-.dots span { width: 10px; height: 10px; background: rgba(255,255,255,0.5); border-radius: 50%; }
-.dots span.active { background: white; }
-</style>

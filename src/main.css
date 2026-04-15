@@ -23,7 +23,7 @@ body {
   padding: 1rem;
   background: var(--dark-bg);
   color: var(--text-white);
-  position: sticky; /* Keeps nav at top while scrolling */
+  position: sticky;
   top: 0;
   z-index: 1000;
 }
@@ -47,15 +47,8 @@ body {
   text-align: center;
 }
 
-.nav-links.is-active {
-  display: flex;
-}
-
-.nav-links a {
-  color: white;
-  text-decoration: none;
-  padding: 1rem;
-}
+.nav-links.is-active { display: flex; }
+.nav-links a { color: white; text-decoration: none; padding: 1rem; }
 
 /* 3. HERO & GRID LAYOUTS */
 .hero {
@@ -104,23 +97,33 @@ body {
   font-size: 0.8rem;
 }
 
-/* 5. CAROUSEL SYSTEM */
+/* 5. CAROUSEL SYSTEM - THE FIX IS HERE */
 .carousel {
   position: relative;
-  width: 95%; /* Better for mobile */
+  width: 95%;
   max-width: 1000px;
   margin: 20px auto;
-  height: 400px;
+  height: 450px; /* This is the anchor height */
   overflow: hidden;
   border-radius: 20px;
   cursor: pointer;
   user-select: none;
 }
 
-.carousel-inner, .slide, .slide img { 
-  width: 100%; 
-  height: 100%; 
-  object-fit: cover; 
+/* Every element in this list MUST fill the 450px height */
+.carousel-inner, 
+.slide-link, 
+.slide {
+  width: 100%;
+  height: 100%;
+  display: block; /* Critical for <a> tags */
+}
+
+.carousel-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 .slide-content {
