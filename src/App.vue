@@ -5,6 +5,7 @@
       <div class="nav-links">
         <router-link to="/">Home</router-link>
         <router-link to="/limassol">Limassol</router-link>
+        <router-link to="/about">About Me</router-link>
       </div>
     </nav>
 
