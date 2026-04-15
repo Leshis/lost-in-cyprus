@@ -1,13 +1,18 @@
 <template>
   <div id="app-container">
     <nav class="navbar">
-      <router-link to="/" class="nav-logo">🇨🇾 Cyprus Guide</router-link>
-      <div class="nav-links">
-        <router-link to="/">Home</router-link>
-        <router-link to="/about">About Me</router-link>
+      <div class="logo">Lost in Cyprus</div>
+
+      <button class="hamburger" @click="isMenuOpen = !isMenuOpen">
+        <span v-if="!isMenuOpen">☰</span>
+        <span v-else>✕</span>
+      </button>
+
+      <div :class="['nav-links', { 'is-active': isMenuOpen }]">
+        <router-link to="/" @click="isMenuOpen = false">Home</router-link>
+        <router-link to="/about" @click="isMenuOpen = false">About Me</router-link>
       </div>
     </nav>
-
     <router-view />
 
     <footer>
@@ -16,45 +21,52 @@
   </div>
 </template>
 
-<style>
-/* Global styles for the whole site */
-body {
-  margin: 0;
-  padding: 0;
-}
+<script setup>
+  import { ref } from 'vue';
+  const isMenuOpen = ref(false);
+</script>
 
-#app-container {
-  font-family: 'Segoe UI', sans-serif;
-  color: #333;
-  margin: 0;
-  padding: 0;
-}
+<style scoped>
 .navbar {
   display: flex;
   justify-content: space-between;
-  padding: 20px 50px;
-  background: white;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 1rem;
+  background: #333;
+  color: white;
+  position: relative;
 }
-.nav-logo {
-  font-weight: bold;
+
+.hamburger {
+  display: block; /* Shown by default for mobile */
+  background: none;
+  border: none;
+  color: white;
   font-size: 1.5rem;
-  text-decoration: none;
-  color: #0088ff;
+  cursor: pointer;
 }
-.nav-links a {
-  margin-left: 20px;
-  text-decoration: none;
-  color: #666;
+
+.nav-links {
+  display: none; /* Hide links initially */
+  flex-direction: column;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: #444;
 }
-.nav-links a.router-link-active {
-  color: #0088ff;
-  font-weight: bold;
+
+.nav-links.is-active {
+  display: flex; /* Show when active */
 }
-footer {
-  text-align: center;
-  padding: 40px;
-  background: #f9f9f9;
-  margin-top: 50px;
+
+/* Optional: Show links and hide hamburger on Desktop */
+@media (min-width: 768px) {
+  .hamburger { display: none; }
+  .nav-links { 
+    display: flex; 
+    flex-direction: row; 
+    position: static; 
+    background: none; 
+  }
 }
 </style>
