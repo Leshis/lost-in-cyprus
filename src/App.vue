@@ -4,7 +4,6 @@
       <router-link to="/" class="nav-logo">🇨🇾 Cyprus Guide</router-link>
       <div class="nav-links">
         <router-link to="/">Home</router-link>
-        <router-link to="/limassol">Limassol</router-link>
         <router-link to="/about">About Me</router-link>
       </div>
     </nav>
