@@ -18,11 +18,6 @@
         />
       </svg>
     </div>
-
-    <div v-if="mapStore.selectedDistrict" class="info-card">
-      <h3>{{ formatName(mapStore.selectedDistrict) }}</h3>
-      <p>{{ districtTips[mapStore.selectedDistrict] }}</p>
-    </div>
   </div>
 </template>
 
@@ -88,14 +83,5 @@ const districtTips = {
 .district.active {
   fill: #2d5a27;
   filter: drop-shadow(0 0 5px rgba(0,0,0,0.3));
-}
-
-.info-card {
-  padding: 20px;
-  background: white;
-  border-left: 5px solid #2d5a27;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  width: 90%;
 }
 </style>
