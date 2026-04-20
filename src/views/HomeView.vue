@@ -11,12 +11,6 @@
         <p>A medieval fortress in the heart of the city.</p>
         <router-link to="/limassol" class="btn">Learn More</router-link>
       </div>
-
-      <div class="card">
-        <h3>Paphos Mosaic</h3>
-        <p>Stunning Roman villas and ancient history.</p>
-        <span class="badge">Coming Soon</span>
-      </div>
     </section>
   </div>
 </template>
