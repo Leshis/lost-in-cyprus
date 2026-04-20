@@ -83,37 +83,60 @@ const filteredLocations = computed(() => {
 </script>
 
 <style scoped>
-/* Scoped CSS from your CodePen variables */
+/* --- 1. Variables & Root --- */
+:root {
+  --bg-color: #f8f6f0;
+  --map-bg: #1c2a32;
+  --card-bg: #ffffff;
+  --gold-accent: #c69f4b;
+  --border-radius: 12px;
+}
+
+/* --- 2. Layout Structure --- */
 .app-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* Mobile: Top/Bottom */
   height: 100vh;
-  background: #f8f6f0;
+  width: 100vw;
+  background-color: #f8f6f0;
+  overflow: hidden;
 }
 
 .map-section {
-  flex: 0 0 40vh;
+  flex: 0 0 45vh; /* Prevents map from being tiny on mobile */
   background-color: #1c2a32;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  z-index: 1;
+  padding: 20px;
 }
 
 .content-section {
   flex: 1;
+  background-color: #f8f6f0;
   overflow-y: auto;
   padding: 16px;
-  background: #f8f6f0;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
-  margin-top: -20px; /* Overlap effect */
+  margin-top: -20px; /* The "overlap" effect from your CodePen */
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 -5px 15px rgba(0,0,0,0.08);
 }
 
+/* --- 3. Filters & UI Elements --- */
 .filter-row {
   display: flex;
   gap: 8px;
   overflow-x: auto;
   padding-bottom: 15px;
+  scrollbar-width: none; /* Hides scrollbar on Firefox */
+}
+
+.filter-row::-webkit-scrollbar {
+  display: none; /* Hides scrollbar on Chrome/Safari */
 }
 
 .filter-pill {
@@ -123,6 +146,8 @@ const filteredLocations = computed(() => {
   background: white;
   white-space: nowrap;
   cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
 }
 
 .filter-pill.active {
@@ -131,10 +156,27 @@ const filteredLocations = computed(() => {
   border-color: #c69f4b;
 }
 
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.clear-filter {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+/* --- 4. Card Grid --- */
 .card-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr; /* Mobile: Single Column */
   gap: 16px;
+  padding-bottom: 40px; /* Space at bottom for scrolling */
 }
 
 .location-card {
@@ -142,16 +184,18 @@ const filteredLocations = computed(() => {
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
 }
 
 .card-img {
   width: 100%;
-  height: 150px;
+  height: 160px;
   object-fit: cover;
 }
 
 .card-content {
-  padding: 12px;
+  padding: 16px;
 }
 
 .category-tag {
@@ -159,21 +203,61 @@ const filteredLocations = computed(() => {
   text-transform: uppercase;
   color: #c69f4b;
   font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.card-content h4 {
+  margin: 4px 0;
+  color: #1a1a1a;
+}
+
+.card-content p {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 12px;
 }
 
 .card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 10px;
+  border-top: 1px solid #eee;
+  padding-top: 12px;
 }
 
 .action-btn {
   background: #1c2a32;
   color: white;
   border: none;
-  padding: 6px 12px;
+  padding: 8px 16px;
   border-radius: 6px;
   font-size: 0.8rem;
+  cursor: pointer;
+}
+
+/* --- 5. DESKTOP RESPONSIVENESS --- */
+@media (min-width: 1024px) {
+  .app-container {
+    flex-direction: row; /* Desktop: Side-by-Side */
+  }
+
+  .map-section {
+    flex: 0 0 50%; /* Map on left half */
+    height: 100vh;
+  }
+
+  .content-section {
+    flex: 0 0 50%; /* Content on right half */
+    height: 100vh;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    margin-top: 0;
+    padding: 30px;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.05);
+  }
+
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Grid on wide screens */
+  }
 }
 </style>
