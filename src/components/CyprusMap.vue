@@ -7,13 +7,13 @@
         xmlns="http://www.w3.org/2000/svg"
       >
         <path 
-          v-for="(pathData, districtId) in districts" 
-          :key="districtId"
-          :id="districtId"
+          v-for="(pathData, id) in districts" 
+          :key="id"
+          :id="id"
           :d="pathData"
           class="district"
-          :class="{ active: selectedDistrict === districtId }"
-          @click="selectDistrict(districtId)"
+          :class="{ active: mapStore.selectedDistrict === id }"
+          @click="selectDistrict(id)"
         />
       </svg>
     </div>
@@ -27,9 +27,14 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useMapStore } from '@/stores/mapStore'
 
-// State
-const selectedDistrict = ref(null);
+const mapStore = useMapStore()
+
+const selectDistrict = (id) => {
+  // This updates the global store
+  mapStore.setSelectedDistrict(id)
+}
 
 // District SVG Paths
 const districts = {
