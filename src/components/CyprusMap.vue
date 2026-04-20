@@ -12,15 +12,17 @@
           :id="id"
           :d="pathData"
           class="district"
+          /* 1. Use mapStore here */
           :class="{ active: mapStore.selectedDistrict === id }"
           @click="selectDistrict(id)"
         />
       </svg>
     </div>
 
-    <div v-if="selectedDistrict" class="info-card">
-      <h3>{{ formatName(selectedDistrict) }}</h3>
-      <p>{{ districtTips[selectedDistrict] }}</p>
+    /* 2. Update these to use mapStore.selectedDistrict */
+    <div v-if="mapStore.selectedDistrict" class="info-card">
+      <h3>{{ formatName(mapStore.selectedDistrict) }}</h3>
+      <p>{{ districtTips[mapStore.selectedDistrict] }}</p>
     </div>
   </div>
 </template>
@@ -35,6 +37,8 @@ const selectDistrict = (id) => {
   // This updates the global store
   mapStore.setSelectedDistrict(id)
 }
+
+const formatName = (id) => id.charAt(0).toUpperCase() + id.slice(1);
 
 // District SVG Paths
 const districts = {
@@ -53,12 +57,7 @@ const districtTips = {
   // ... add others
 };
 
-// Logic
-const selectDistrict = (id) => {
-  selectedDistrict.value = id;
-};
 
-const formatName = (id) => id.charAt(0).toUpperCase() + id.slice(1);
 </script>
 
 <style scoped>
