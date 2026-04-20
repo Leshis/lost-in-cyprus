@@ -22,6 +22,12 @@ export const useArticleStore = defineStore('articles', {
       }
       this.loading = false
     },
+
+    getters: {
+      getArticleById: (state) => {
+        return (id) => state.items.find(item => item.id === parseInt(id))
+      }
+    },
     
     // This is for your "Read More" page
     getArticleBySlug(slug) {
