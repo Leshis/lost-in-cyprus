@@ -41,14 +41,12 @@ import { useArticleStore } from '@/stores/articleStore'
 const route = useRoute()
 const articleStore = useArticleStore()
 
-// 1. Fetch data if the store is empty (e.g., user refreshed the page)
 onMounted(() => {
   if (articleStore.items.length === 0) {
     articleStore.fetchArticles()
   }
 })
 
-// 2. Grab the specific article matching the ID in the URL
 const article = computed(() => {
   return articleStore.getArticleById(route.params.id)
 })
