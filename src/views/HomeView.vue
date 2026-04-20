@@ -111,6 +111,7 @@ const filteredLocations = computed(() => {
   position: relative;
   z-index: 1;
   padding: 20px;
+  min-height: 300px;
 }
 
 .content-section {
