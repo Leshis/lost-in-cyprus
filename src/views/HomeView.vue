@@ -35,7 +35,13 @@
             <p>{{ loc.desc }}</p>
             <div class="card-footer">
               <small>{{ loc.meta }}</small>
-              <button class="action-btn">{{ loc.actionType === 'book' ? 'Book Now' : 'Read More' }}</button>
+              <button 
+  class="action-btn" 
+  @click="$router.push(`/article/${loc.id}`)"
+>
+  {{ loc.actionType === 'book' ? 'Book Now' : 'Read More' }}
+</button>
+
             </div>
           </div>
         </div>
