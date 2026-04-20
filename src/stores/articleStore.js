@@ -13,7 +13,7 @@ export const useArticleStore = defineStore('articles', {
       
       this.loading = true
       const { data, error } = await supabase
-        .from('Articles')
+        .from('articles')
         .select('*')
         .order('created_at', { ascending: false }) // Newest first
       
