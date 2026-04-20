@@ -75,20 +75,38 @@ const districtTips = {
   padding: 20px;
 }
 
+/* 1. BASE STATE - Applies to everyone */
 .district {
-  fill: #333;
+  fill: #333; 
   stroke: #fff;
   stroke-width: 1;
-  transition: fill 0.3s ease, transform 0.2s ease;
+  transition: fill 0.3s ease, opacity 0.3s ease;
   cursor: pointer;
+  /* Removes the gray/blue flash on mobile tap */
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
 }
 
-.district:hover {
-  fill: #2d5a27;
+/* 2. HOVER STATE - Laptops Only */
+/* This prevents the "sticky green" on mobile because phones ignore this block */
+@media (hover: hover) {
+  .district:hover:not(.active) {
+    fill: #4a7a42; 
+  }
 }
 
+/* 3. ACTIVE STATE - The "Single Source of Truth" */
+/* Using !important here ensures the Store's state overrides everything else */
 .district.active {
-  fill: #2d5a27;
+  fill: #2d5a27 !important;
+  opacity: 1 !important;
   filter: drop-shadow(0 0 5px rgba(0,0,0,0.3));
+}
+
+/* 4. DIMMING EFFECT */
+/* When any district is active, slightly fade out the others */
+svg:has(.active) .district:not(.active) {
+  opacity: 0.5;
+  fill: #555;
 }
 </style>
