@@ -9,7 +9,7 @@
     <main class="content-section">
       <div class="filter-row">
         <button 
-          v-for="cat in categories" 
+          v-for="cat in dynamicCategories" 
           :key="cat.id"
           class="filter-pill"
           :class="{ active: activeFilter === cat.id }"
@@ -28,6 +28,13 @@
 
       <div v-if="articleStore.loading" class="loading-state">
         <p>Loading Cyprus secrets...</p>
+      </div>
+
+      <div v-if="!articleStore.loading && filteredLocations.length === 0" class="empty-state">
+        <p>No secrets found in this area yet. Try a different category!</p>
+        <button @click="activeFilter = 'all'; mapStore.setSelectedDistrict(null)">
+          Reset all filters
+        </button>
       </div>
 
       <div v-else class="card-grid">
@@ -71,12 +78,38 @@ onMounted(() => {
   articleStore.fetchArticles();
 });
 
-const categories = [
-  { id: 'all', label: 'All' },
-  { id: 'hiking', label: '🧗 Hiking' },
-  { id: 'wine', label: '🍷 Wine' },
-  { id: 'beach', label: '🏖️ Beach' }
-];
+// 1. Get unique categories from the actual database items
+const dynamicCategories = computed(() => {
+  // Get all categories from items, filter out nulls/undefined
+  const rawCategories = articleStore.items
+    .map(item => item.category)
+    .filter(Boolean);
+
+  // Use Set to get unique values, then format them into objects
+  const uniqueCats = [...new Set(rawCategories)];
+  
+  // Return the "All" pill plus the dynamic ones
+  return [
+    { id: 'all', label: 'All' },
+    ...uniqueCats.map(cat => ({
+      id: cat,
+      label: formatCategoryLabel(cat)
+    }))
+  ];
+});
+
+// Helper to make "wine-tasting" look like "🍷 Wine Tasting" (Optional)
+const formatCategoryLabel = (cat) => {
+  const emojis = {
+    hiking: '🧗',
+    wine: '🍷',
+    beach: '🏖️',
+    culture: '🏛️',
+    food: '🍲'
+  };
+  const emoji = emojis[cat.toLowerCase()] || '📍';
+  return `${emoji} ${cat.charAt(0).toUpperCase() + cat.slice(1)}`;
+};
 
 const activeDistrictName = computed(() => {
   return mapStore.selectedDistrict 
@@ -254,6 +287,14 @@ const handleAction = (loc) => {
   align-items: center;
   border-top: 1px solid #eee;
   padding-top: 12px;
+}
+
+.location-card:hover .card-img {
+  transform: scale(1.05);
+}
+
+.card-img {
+  transition: transform 0.4s ease;
 }
 
 .action-btn {
