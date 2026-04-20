@@ -6,7 +6,8 @@
         preserveAspectRatio="xMidYMid meet" 
         xmlns="http://www.w3.org/2000/svg"
         style="width: 100%; height: 100%; display: block;"
-      >
+        @click.self="mapStore.setSelectedDistrict(null)"
+        >
         <path 
           v-for="(pathData, id) in districts" 
           :key="id"
@@ -26,8 +27,14 @@ import { useMapStore } from '@/stores/mapStore';
 
 const mapStore = useMapStore();
 
-const selectDistrict = (id) => {
-  mapStore.setSelectedDistrict(id);
+const selectDistrict = (clickedDistrict) => {
+  const name = clickedDistrict.toLowerCase();
+
+  if (mapStore.selectedDistrict === name) {
+    mapStore.setSelectedDistrict(null);
+  } else {
+    mapStore.setSelectedDistrict(name);
+  }
 };
 
 const formatName = (id) => id.charAt(0).toUpperCase() + id.slice(1);
