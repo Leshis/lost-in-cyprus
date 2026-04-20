@@ -47,7 +47,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useMapStore } from '@/stores/mapStore';
-import CyprusMap from '@components/CyprusMap.vue';
+import CyprusMap from '@/components/CyprusMap.vue';
 
 const mapStore = useMapStore();
 const activeFilter = ref('all');
