@@ -1,7 +1,6 @@
 <template>
   <div class="home">
     <Article-carousel/>
-    </section>
   </div>
 </template>
 
