@@ -22,7 +22,7 @@ const router = createRouter({
     },
     {
       path: '/gate',
-      name: 'AdminGate',
+      name: 'Admin',
       component: () => import('../views/AdminView.vue'),
       meta: { requiresAuth: true }
     },
