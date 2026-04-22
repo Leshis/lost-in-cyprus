@@ -45,7 +45,8 @@ const selectDistrict = (id) => {
   fill: #cbd5e1;
   stroke: #94a3b8;
   stroke-width: 1;
-  transition: fill 0.3s ease, opacity 0.3s ease;
+  filter: none; 
+  transition: fill 0.3s ease, opacity 0.3s ease, filter 0.3s ease; 
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   outline: none;
