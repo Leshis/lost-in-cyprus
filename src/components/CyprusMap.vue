@@ -28,7 +28,7 @@ const selectDistrict = (id) => {
 .map-content-area {
   width: 100%;
   height: 100%;
-  max-width: 900px; 
+  max-width: 900px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -38,21 +38,21 @@ const selectDistrict = (id) => {
 .map-svg {
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 0 20px rgba(0,0,0,0.3)); 
-}
-
-.district:focus {
-  outline: none;
+  filter: drop-shadow(0 0 20px rgba(0,0,0,0.3));
 }
 
 .district {
   fill: #cbd5e1;
   stroke: #94a3b8;
   stroke-width: 1;
-  filter: none; 
-  transition: fill 0.3s ease, opacity 0.3s ease, filter 0.3s ease; 
+  filter: none;
+  transition: fill 0.3s ease, opacity 0.3s ease, stroke-width 0.3s ease;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.district:focus {
   outline: none;
 }
 
@@ -65,14 +65,14 @@ const selectDistrict = (id) => {
 .district.active {
   fill: #b57b52;
   stroke: #8d5d3a;
+  stroke-width: 2.5;
   opacity: 1;
-  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.3));
 }
 
 svg:has(.active) .district:not(.active) {
   opacity: 0.7;
-  fill: #d1d5db; 
-  stroke: rgba(148, 163, 184, 0.5); 
+  fill: #d1d5db;
+  stroke: rgba(148, 163, 184, 0.5);
 }
 
 svg:not(:has(.active)) .district {
