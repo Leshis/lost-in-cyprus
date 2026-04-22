@@ -1,10 +1,17 @@
 <template>
   <div v-if="article" class="article-page">
-    <header 
-      class="article-hero" 
-      :style="{ backgroundImage: `url(${getImageUrl(article.image_url)})` }"
-    >
-      <button @click="$router.back()" class="back-btn">← Back</button>
+    <header class="article-hero">
+      <img 
+        v-if="article.image_url"
+        :src="getImageUrl(article.image_url)" 
+        :alt="article.title"
+        class="hero-bg-img"
+        fetchpriority="high"
+      />
+      <div v-else class="hero-bg-img fallback-bg"></div>
+
+      <button @click="goBack" class="back-btn">← Back</button>
+      
       <div class="hero-overlay">
         <span class="category-pill">{{ article.category }}</span>
         <h1>{{ article.title }}</h1>
@@ -14,7 +21,7 @@
     <main class="article-body">
       <div class="meta-info">
         <span class="district-tag">📍 {{ article.district }}</span>
-        <span class="date">{{ new Date(article.created_at).toLocaleDateString() }}</span>
+        <span class="date">{{ formatDate(article.created_at) }}</span>
       </div>
 
       <div class="content-text">
@@ -24,37 +31,69 @@
       <div v-if="article.affiliate_url" class="cta-box">
         <h3>Ready to experience this?</h3>
         <p>Support our site by booking through our partner link.</p>
-        <a :href="article.affiliate_url" target="_blank" class="book-btn">Book Now</a>
+        <a 
+          :href="article.affiliate_url" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          class="book-btn"
+        >Book Now</a>
       </div>
     </main>
   </div>
 
   <div v-else class="error-state">
-    <p v-if="articleStore.loading">Loading secret details...</p>
+    <p v-if="isLoading || articleStore.loading">Loading secret details...</p>
     <p v-else>Secret not found. It might have been moved.</p>
-    <button @click="$router.push('/')">Return Home</button>
+    <button @click="router.push('/')">Return Home</button>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useArticleStore } from '@/stores/articleStore'
-// 1. Import the helper
 import { getImageUrl } from '@/utils/supabaseHelpers' 
 
 const route = useRoute()
+const router = useRouter()
 const articleStore = useArticleStore()
 
-onMounted(() => {
-  if (articleStore.items.length === 0) {
-    articleStore.fetchArticles()
+const isLoading = ref(true)
+
+onMounted(async () => {
+  try {
+    if (!articleStore.getArticleById(route.params.id)) {
+      if (articleStore.fetchArticleById) {
+        await articleStore.fetchArticleById(route.params.id)
+      } else if (articleStore.items.length === 0) {
+        await articleStore.fetchArticles()
+      }
+    }
+  } finally {
+    isLoading.value = false
   }
 })
 
 const article = computed(() => {
   return articleStore.getArticleById(route.params.id)
 })
+
+const goBack = () => {
+  if (window.history.length > 2) {
+    router.back()
+  } else {
+    router.push('/')
+  }
+}
+
+const formatDate = (dateString) => {
+  if (!dateString) return ''
+  return new Date(dateString).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  })
+}
 </script>
 
 <style scoped>
@@ -65,11 +104,24 @@ const article = computed(() => {
 
 .article-hero {
   height: 40dvh;
-  background-size: cover;
-  background-position: center;
   position: relative;
   display: flex;
   align-items: flex-end;
+  overflow: hidden;
+}
+
+.hero-bg-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.fallback-bg {
+  background-color: #1c2a32;
 }
 
 .hero-overlay {
@@ -77,6 +129,8 @@ const article = computed(() => {
   width: 100%;
   padding: 40px 20px 20px;
   color: white;
+  position: relative;
+  z-index: 1;
 }
 
 .back-btn {
@@ -89,6 +143,14 @@ const article = computed(() => {
   border-radius: 20px;
   cursor: pointer;
   font-weight: bold;
+  z-index: 1;
+}
+
+.back-btn:focus-visible, 
+.book-btn:focus-visible,
+button:focus-visible {
+  outline: 3px solid #1c2a32;
+  outline-offset: 2px;
 }
 
 .category-pill {
@@ -97,6 +159,8 @@ const article = computed(() => {
   border-radius: 4px;
   font-size: 0.8rem;
   text-transform: uppercase;
+  display: inline-block;
+  margin-bottom: 8px;
 }
 
 .article-body {
@@ -119,7 +183,7 @@ const article = computed(() => {
   line-height: 1.8;
   font-size: 1.1rem;
   color: #2c3e50;
-  white-space: pre-wrap; /* Keeps your database line breaks! */
+  white-space: pre-wrap;
 }
 
 .cta-box {
@@ -140,5 +204,14 @@ const article = computed(() => {
   text-decoration: none;
   border-radius: 8px;
   font-weight: bold;
+}
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 15px;
 }
 </style>
