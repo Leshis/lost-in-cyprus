@@ -64,7 +64,7 @@ const article = computed(() => {
 }
 
 .article-hero {
-  height: 40vh;
+  height: 40dvh;
   background-size: cover;
   background-position: center;
   position: relative;
