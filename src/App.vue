@@ -4,9 +4,7 @@
     <nav class="pill-navbar">
       <div class="nav-content">
         <router-link to="/" class="logo-link" @click="closeMenu">
-          <svg class="cyprus-icon" viewBox="0 0 100 50" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M10,25 Q30,10 50,20 T90,10 Q80,30 50,40 T10,25 Z" />
-          </svg>
+          <img src="/lost-in-cyprus.png" alt="Lost in Cyprus Logo" class="cyprus-icon" />
         </router-link>
 
         <button class="hamburger-trigger" @click="isMenuOpen = true" aria-label="Open Menu">
@@ -128,11 +126,6 @@ const goToArticle = (id) => {
   position: relative;
   min-height: 100vh;
   background-color: #f8f6f0;
-}
-
-.main-content {
-  padding-top: 20px;
-  /* Adjust based on your Map/Home design */
 }
 
 /* --- FLOATING PILL --- */
