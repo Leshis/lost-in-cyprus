@@ -13,15 +13,25 @@ import { useMapStore } from '@/stores/mapStore';
 
 const mapStore = useMapStore();
 
-const selectDistrict = (clickedDistrict) => {
-  const name = clickedDistrict.toLowerCase();
+// const selectDistrict = (clickedDistrict) => {
+//   const name = clickedDistrict.toLowerCase();
 
-  if (mapStore.selectedDistrict === name) {
+//   if (mapStore.selectedDistrict === name) {
+//     mapStore.setSelectedDistrict(null);
+//   } else {
+//     mapStore.setSelectedDistrict(name);
+//   }
+// };
+
+const selectDistrict = (id) => {
+  if (mapStore.selectedDistrict === id) {
+    console.log("deselecting", id);
     mapStore.setSelectedDistrict(null);
   } else {
-    mapStore.setSelectedDistrict(name);
+    console.log("selecting:", id);
+    mapStore.setSelectedDistrict(id);
   }
-};
+}
 
 const formatName = (id) => id.charAt(0).toUpperCase() + id.slice(1);
 
@@ -90,11 +100,16 @@ const districtTips = {
   filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.3));
 }
 
+.district:not(.active){
+  fill: #cbd5e1;
+  stroke: #94a3b8;
+}
+
 /* 4. DIMMING EFFECT */
 /* When any district is active, slightly fade out the others */
 svg:has(.active) .district:not(.active) {
-  opacity: 0.3;
-  fill: #e2e8f0; /* A slightly lighter version of your background */
-  stroke: #cbd5e1; /* Subtle border */
+  opacity: 0.7;
+  fill: #d1d5db; /* A slightly lighter version of your background */
+  stroke: rgba(148, 163, 184, 0.5); /* Subtle border */
 }
 </style>

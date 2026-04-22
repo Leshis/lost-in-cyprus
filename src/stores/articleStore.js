@@ -36,3 +36,20 @@ export const useArticleStore = defineStore('articles', {
     }
   }
 })
+
+// Inside your store or a dedicated search service
+async function searchArticles(query) {
+  if (!query) return [];
+  
+  const { data, error } = await supabase
+    .from('articles')
+    .select('*')
+    .or(`title.ilike.%${query}%,content.ilike.%${query}%`) // Searches title OR content
+    .limit(5); // Keeps it "blazing fast"
+
+  if (error) {
+    console.error(error);
+    return [];
+  }
+  return data;
+}
