@@ -41,6 +41,10 @@ const selectDistrict = (id) => {
   filter: drop-shadow(0 0 20px rgba(0,0,0,0.3)); 
 }
 
+.district:focus {
+  outline: none;
+}
+
 .district {
   fill: #cbd5e1;
   stroke: #94a3b8;
