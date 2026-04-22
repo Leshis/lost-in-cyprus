@@ -1,9 +1,7 @@
 <template>
   <div class="app-container">
     <aside class="map-section">
-      <div class="map-wrapper">
-        <CyprusMap /> 
-      </div>
+      <CyprusMap /> 
     </aside>
 
     <main class="content-section">
@@ -158,14 +156,16 @@ const handleAction = (loc) => {
 
 .map-section {
   flex: 0 0 45vh; /* Prevents map from being tiny on mobile */
-  background-color: #1c2a32;
+  background-color: #fdfcf8;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   z-index: 1;
-  padding: 20px;
+  padding: 0;
   min-height: 300px;
+  overflow: hidden;
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.03);
 }
 
 .content-section {

@@ -1,24 +1,10 @@
 <template>
-  <div class="map-wrapper">
-    <div class="map-container">
-      <svg 
-        viewBox="0 0 700 400" 
-        preserveAspectRatio="xMidYMid meet" 
-        xmlns="http://www.w3.org/2000/svg"
-        style="width: 100%; height: 100%; display: block;"
-        @click.self="mapStore.setSelectedDistrict(null)"
-        >
-        <path 
-          v-for="(pathData, id) in districts" 
-          :key="id"
-          :id="id"
-          :d="pathData"
-          class="district"
-          :class="{ active: mapStore.selectedDistrict === id }"
-          @click="selectDistrict(id)"
-        />
-      </svg>
-    </div>
+  <div class="map-content-area">
+    <svg viewBox="0 0 700 400" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" class="map-svg"
+      @click.self="mapStore.setSelectedDistrict(null)">
+      <path v-for="(pathData, id) in districts" :key="id" :id="id" :d="pathData" class="district"
+        :class="{ active: mapStore.selectedDistrict === id }" @click="selectDistrict(id)" />
+    </svg>
   </div>
 </template>
 
@@ -59,26 +45,26 @@ const districtTips = {
 </script>
 
 <style scoped>
-.map-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
+.map-content-area {
   width: 100%;
+  height: 100%;
+  max-width: 900px; /* Limits how big the SVG gets on wide screens */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
-.map-container {
+.map-svg {
   width: 100%;
-  max-width: 800px;
-  background: #fdfcf8;
-  border-radius: 20px;
-  padding: 20px;
+  height: 100%;
+  filter: drop-shadow(0 0 20px rgba(0,0,0,0.3)); /* Makes the map "pop" off the dark background */
 }
 
 /* 1. BASE STATE - Applies to everyone */
 .district {
-  fill: #333; 
-  stroke: #fff;
+  fill: #cbd5e1;
+  stroke: #94a3b8;
   stroke-width: 1;
   transition: fill 0.3s ease, opacity 0.3s ease;
   cursor: pointer;
@@ -91,22 +77,24 @@ const districtTips = {
 /* This prevents the "sticky green" on mobile because phones ignore this block */
 @media (hover: hover) {
   .district:hover:not(.active) {
-    fill: #4a7a42; 
+    fill: #b57b52;
   }
 }
 
 /* 3. ACTIVE STATE - The "Single Source of Truth" */
 /* Using !important here ensures the Store's state overrides everything else */
 .district.active {
-  fill: #2d5a27 !important;
+  fill: #b57b52 !important;
+  stroke: #8d5d3a !important;
   opacity: 1 !important;
-  filter: drop-shadow(0 0 5px rgba(0,0,0,0.3));
+  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.3));
 }
 
 /* 4. DIMMING EFFECT */
 /* When any district is active, slightly fade out the others */
 svg:has(.active) .district:not(.active) {
-  opacity: 0.5;
-  fill: #555;
+  opacity: 0.3;
+  fill: #e2e8f0; /* A slightly lighter version of your background */
+  stroke: #cbd5e1; /* Subtle border */
 }
 </style>
