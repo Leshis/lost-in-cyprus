@@ -12,7 +12,9 @@
 <script setup>
 import { useMapStore } from '@/stores/mapStore';
 import { districts } from '@/data/districts';
-import { nextTick } from 'vue'
+import { nextTick } from 'vue';
+
+const mapStore = useMapStore();
 
 const selectDistrict = (id) => {
   if (mapStore.selectedDistrict === id) {
@@ -25,15 +27,8 @@ const selectDistrict = (id) => {
   }
 }
 
-const mapStore = useMapStore();
 
-const selectDistrict = (id) => {
-  if (mapStore.selectedDistrict === id) {
-    mapStore.setSelectedDistrict(null);
-  } else {
-    mapStore.setSelectedDistrict(id);
-  }
-};
+
 </script>
 
 <style scoped>
