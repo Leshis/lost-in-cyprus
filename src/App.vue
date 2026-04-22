@@ -6,7 +6,12 @@
           <img src="/lost-in-cyprus.png" alt="Logo" class="cyprus-icon" />
         </router-link>
 
-        <button class="hamburger-trigger" @click="isMenuOpen = true">
+        <button 
+          type="button"
+          class="hamburger-trigger" 
+          aria-label="Open menu"
+          @click="isMenuOpen = true"
+        >
           <div class="hamburger-lines">
             <span></span><span></span><span></span>
           </div>
@@ -27,7 +32,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import TheMenu from '@/components/TheMenu.vue';
 
@@ -36,16 +41,21 @@ const router = useRouter();
 const route = useRoute();
 
 const shouldHideNav = computed(() => {
-  return ['/gate', '/login'].includes(route.path);
+  return ['Admin', 'Login'].includes(route.name) || ['/gate', '/login'].includes(route.path);
 });
 
-const handleNavigation = (id) => {
+watch(() => route.path, () => {
   isMenuOpen.value = false;
-  router.push(`/article/${id}`);
+});
+
+const handleNavigation = (target) => {
+  isMenuOpen.value = false;
+  const destination = typeof target === 'object' ? target : `/article/${target}`;
+  router.push(destination);
 };
 </script>
 
-<style>
+<style scoped>
 #app-container {
   position: relative;
   min-height: 100vh;
@@ -89,12 +99,19 @@ const handleNavigation = (id) => {
   cursor: pointer;
 }
 
+.hamburger-lines {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 .hamburger-lines span {
   display: block;
   width: 18px;
   height: 2px;
   background: #1c2a32;
-  margin: 3px 0;
+  margin: 2px 0;
   border-radius: 2px;
 }
 </style>
