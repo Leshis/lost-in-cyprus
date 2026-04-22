@@ -149,7 +149,7 @@ const handleAction = (loc) => {
 .app-container {
   display: flex;
   flex-direction: column; /* Mobile: Top/Bottom */
-  height: 100vh;
+  height: 100dvh;
   width: 100vw;
   background-color: #f8f6f0;
   overflow: hidden;
@@ -316,12 +316,12 @@ const handleAction = (loc) => {
 
   .map-section {
     flex: 0 0 50%; /* Map on left half */
-    height: 100vh;
+    height: 100dvh;
   }
 
   .content-section {
     flex: 0 0 50%; /* Content on right half */
-    height: 100vh;
+    height: 100dvh;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
     margin-top: 0;
