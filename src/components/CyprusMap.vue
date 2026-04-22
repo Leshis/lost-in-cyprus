@@ -11,7 +11,19 @@
 
 <script setup>
 import { useMapStore } from '@/stores/mapStore';
-import { districts } from '@/data/districts'; // Import the external data
+import { districts } from '@/data/districts';
+import { nextTick } from 'vue'
+
+const selectDistrict = (id) => {
+  if (mapStore.selectedDistrict === id) {
+    mapStore.setSelectedDistrict(null)
+    nextTick(() => {
+      document.getElementById(id)?.getBoundingClientRect()
+    })
+  } else {
+    mapStore.setSelectedDistrict(id)
+  }
+}
 
 const mapStore = useMapStore();
 
@@ -46,6 +58,7 @@ const selectDistrict = (id) => {
   stroke: #94a3b8;
   stroke-width: 1;
   filter: none;
+  will-change: fill, opacity, stroke-width; 
   transition: fill 0.3s ease, opacity 0.3s ease, stroke-width 0.3s ease;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
