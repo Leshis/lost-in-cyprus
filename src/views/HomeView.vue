@@ -37,7 +37,7 @@
 
       <div v-else class="card-grid">
         <div v-for="loc in filteredLocations" :key="loc.id" class="location-card">
-          <img :src="loc.image_url" :alt="loc.title" class="card-img" />
+          <img :src="getImageUrl(loc.image_url)" :alt="loc.title" class="card-img" />
           
           <div class="card-content">
             <span class="category-tag">{{ loc.category }}</span>
@@ -65,6 +65,7 @@ import { useRouter } from 'vue-router'; // Added router import
 import { useMapStore } from '@/stores/mapStore';
 import { useArticleStore } from '@/stores/articleStore';
 import CyprusMap from '@/components/CyprusMap.vue';
+import { getImageUrl } from '@/utils/supabaseHelpers';
 
 const mapStore = useMapStore();
 const articleStore = useArticleStore();

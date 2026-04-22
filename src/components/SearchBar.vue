@@ -68,7 +68,6 @@ const handleSearch = () => {
 }
 
 .pill-search-btn {
-  width: 100%;
   background-color: #b57b52;
   color: white;
   border-radius: 40px;
