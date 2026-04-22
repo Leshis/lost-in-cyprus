@@ -52,16 +52,21 @@
                 class="search-field"
               />
               
-              <div v-if="searchResults.length > 0" class="results-dropdown">
-                <div 
-                  v-for="result in searchResults" 
-                  :key="result.id" 
-                  class="result-item"
-                  @click="goToArticle(result.id)"
-                >
-                  {{ result.title }}
-                </div>
-              </div>
+              <div 
+  v-for="result in searchResults" 
+  :key="result.id" 
+  class="result-item"
+  @click="goToArticle(result.id)"
+>
+  <div class="result-thumb-wrapper">
+    <img 
+      :src="result.image_url || 'https://via.placeholder.com/50'" 
+      alt="Thumbnail" 
+      class="result-thumb"
+    />
+  </div>
+  <span class="result-title">{{ result.title }}</span>
+</div>
               
               <button class="cancel-search" @click="isSearching = false">Cancel</button>
             </div>
@@ -115,7 +120,7 @@ const handleSearch = () => {
   searchTimeout = setTimeout(async () => {
     const { data, error } = await supabase
       .from('articles')
-      .select('id, title')
+      .select('id, title, image_url') // Added image_url here
       .ilike('title', `%${searchQuery.value}%`)
       .limit(5);
       
@@ -309,14 +314,49 @@ const goToArticle = (id) => {
 }
 
 .result-item {
-  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 15px;
   border-bottom: 1px solid #f5f5f5;
   cursor: pointer;
-  font-size: 0.9rem;
+  transition: background 0.2s;
 }
 
 .result-item:active {
   background-color: #f8f6f0;
+}
+
+.result-thumb-wrapper {
+  width: 45px;
+  height: 45px;
+  flex-shrink: 0; /* Prevents the image from squishing */
+  border-radius: 8px;
+  overflow: hidden;
+  background: #eee;
+}
+
+.result-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures the image fills the square perfectly */
+}
+
+.result-title {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1c2a32;
+  text-align: left; /* Align text to the left now that we have images */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Keeps long titles from breaking the layout */
+}
+
+/* Adjust dropdown padding to look cleaner with images */
+.results-dropdown {
+  margin-top: 8px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
 }
 
 .cancel-search {
