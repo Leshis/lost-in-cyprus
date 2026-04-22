@@ -1,6 +1,6 @@
 <template>
   <div id="app-container">
-    
+
     <nav class="pill-navbar">
       <div class="nav-content">
         <router-link to="/" class="logo-link" @click="closeMenu">
@@ -21,19 +21,19 @@
 
     <div :class="['menu-overlay', { 'is-active': isMenuOpen }]">
       <div class="menu-card">
-        
+
         <div class="menu-header">
           <svg class="menu-logo-small" viewBox="0 0 100 50" fill="currentColor">
             <path d="M10,25 Q30,10 50,20 T90,10 Q80,30 50,40 T10,25 Z" />
           </svg>
           <button class="close-x" @click="closeMenu">✕</button>
         </div>
-        
+
         <div class="menu-body">
           <router-link to="/about" class="menu-item" @click="closeMenu">
             ABOUT ME
           </router-link>
-          
+
           <router-link to="/" class="menu-item" @click="closeMenu">
             DISCOVER SECRETS
           </router-link>
@@ -42,32 +42,18 @@
             <div v-if="!isSearching" @click="isSearching = true" class="pill-search-btn">
               <span class="search-icon">🔍</span> SEARCH
             </div>
-            
+
             <div v-else class="search-input-wrapper">
-              <input 
-                v-model="searchQuery" 
-                @input="handleSearch"
-                placeholder="Search secrets..." 
-                autofocus
-                class="search-field"
-              />
-              
-              <div 
-  v-for="result in searchResults" 
-  :key="result.id" 
-  class="result-item"
-  @click="goToArticle(result.id)"
->
-  <div class="result-thumb-wrapper">
-    <img 
-      :src="result.image_url || 'https://via.placeholder.com/50'" 
-      alt="Thumbnail" 
-      class="result-thumb"
-    />
-  </div>
-  <span class="result-title">{{ result.title }}</span>
-</div>
-              
+              <input v-model="searchQuery" @input="handleSearch" placeholder="Search secrets..." autofocus
+                class="search-field" />
+
+              <div v-for="result in searchResults" :key="result.id" class="result-item" @click="goToArticle(result.id)">
+                <div class="result-thumb-wrapper">
+                  <img :src="getImageUrl(result.image_url)" class="result-thumb" alt="Secret Thumbnail" />
+                </div>
+                <span class="result-title">{{ result.title }}</span>
+              </div>
+
               <button class="cancel-search" @click="isSearching = false">Cancel</button>
             </div>
           </div>
@@ -90,6 +76,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { supabase } from './supabase'; // Ensure your supabase.js path is correct
+import { getImageUrl } from './utils/supabaseHelpers';
 
 const router = useRouter();
 
@@ -123,7 +110,7 @@ const handleSearch = () => {
       .select('id, title, image_url') // Added image_url here
       .ilike('title', `%${searchQuery.value}%`)
       .limit(5);
-      
+
     if (error) console.error("Search error:", error);
     searchResults.value = data || [];
   }, 300);
@@ -144,7 +131,8 @@ const goToArticle = (id) => {
 }
 
 .main-content {
-  padding-top: 20px; /* Adjust based on your Map/Home design */
+  padding-top: 20px;
+  /* Adjust based on your Map/Home design */
 }
 
 /* --- FLOATING PILL --- */
@@ -157,7 +145,7 @@ const goToArticle = (id) => {
   max-width: 400px;
   background: white;
   border-radius: 50px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   padding: 6px 8px 6px 18px;
   z-index: 50;
 }
@@ -223,7 +211,7 @@ const goToArticle = (id) => {
   background: white;
   border-radius: 30px;
   padding: 30px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   transform: scale(0.9);
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -308,7 +296,7 @@ const goToArticle = (id) => {
   background: white;
   border: 1px solid #eee;
   border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   max-height: 150px;
   overflow-y: auto;
 }
@@ -330,7 +318,8 @@ const goToArticle = (id) => {
 .result-thumb-wrapper {
   width: 45px;
   height: 45px;
-  flex-shrink: 0; /* Prevents the image from squishing */
+  flex-shrink: 0;
+  /* Prevents the image from squishing */
   border-radius: 8px;
   overflow: hidden;
   background: #eee;
@@ -339,24 +328,27 @@ const goToArticle = (id) => {
 .result-thumb {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Ensures the image fills the square perfectly */
+  object-fit: cover;
+  /* Ensures the image fills the square perfectly */
 }
 
 .result-title {
   font-size: 0.95rem;
   font-weight: 500;
   color: #1c2a32;
-  text-align: left; /* Align text to the left now that we have images */
+  text-align: left;
+  /* Align text to the left now that we have images */
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis; /* Keeps long titles from breaking the layout */
+  text-overflow: ellipsis;
+  /* Keeps long titles from breaking the layout */
 }
 
 /* Adjust dropdown padding to look cleaner with images */
 .results-dropdown {
   margin-top: 8px;
   border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
 .cancel-search {

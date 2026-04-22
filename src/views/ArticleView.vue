@@ -1,6 +1,9 @@
 <template>
   <div v-if="article" class="article-page">
-    <header class="article-hero" :style="{ backgroundImage: `url(${article.image_url})` }">
+    <header 
+      class="article-hero" 
+      :style="{ backgroundImage: `url(${getImageUrl(article.image_url)})` }"
+    >
       <button @click="$router.back()" class="back-btn">← Back</button>
       <div class="hero-overlay">
         <span class="category-pill">{{ article.category }}</span>
@@ -37,6 +40,8 @@
 import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useArticleStore } from '@/stores/articleStore'
+// 1. Import the helper
+import { getImageUrl } from '@/utils/supabaseHelpers' 
 
 const route = useRoute()
 const articleStore = useArticleStore()
