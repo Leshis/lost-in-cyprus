@@ -74,4 +74,10 @@ svg:has(.active) .district:not(.active) {
   fill: #d1d5db; 
   stroke: rgba(148, 163, 184, 0.5); 
 }
+
+svg:not(:has(.active)) .district {
+  fill: #cbd5e1;
+  opacity: 1;
+  filter: none;
+}
 </style>
