@@ -1,7 +1,6 @@
 <template>
   <div id="app-container">
-    
-    <nav class="pill-navbar">
+    <nav v-if="!shouldHideNav" class="pill-navbar">
       <div class="nav-content">
         <router-link to="/" class="logo-link">
           <img src="/lost-in-cyprus.png" alt="Logo" class="cyprus-icon" />
@@ -24,17 +23,21 @@
     <main class="main-content">
       <router-view />
     </main>
-
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import TheMenu from '@/components/TheMenu.vue';
 
 const isMenuOpen = ref(false);
 const router = useRouter();
+const route = useRoute();
+
+const shouldHideNav = computed(() => {
+  return ['/gate', '/login'].includes(route.path);
+});
 
 const handleNavigation = (id) => {
   isMenuOpen.value = false;
@@ -43,14 +46,12 @@ const handleNavigation = (id) => {
 </script>
 
 <style>
-/* App-wide Container Styles */
 #app-container {
   position: relative;
   min-height: 100vh;
   background-color: #f8f6f0;
 }
 
-/* Navbar stays here as it's a global app element */
 .pill-navbar {
   position: absolute;
   top: 20px;

@@ -1,70 +1,85 @@
 <template>
-    <div class="admin-wrap">
-        <header class="admin-header">
-            <h1>Add New Secret</h1>
-            <button @click="handleLogout" class="logout-btn">Logout</button>
-        </header>
+  <div class="admin-wrap">
+    <header class="admin-header">
+      <div class="tabs">
+        <button :class="{ active: activeTab === 'list' }" @click="activeTab = 'list'">Manage Articles</button>
+        <button :class="{ active: activeTab === 'create' }" @click="activeTab = 'create'">+ New Article</button>
+      </div>
+      <button @click="handleLogout" class="logout-btn">Logout</button>
+    </header>
 
-        <form @submit.prevent="uploadSecret" class="secret-form">
-            <div class="field">
-                <label>Secret Title</label>
-                <input v-model="form.title" type="text" placeholder="e.g. The Hidden Sea Caves" required />
-            </div>
+    <ArticleList 
+      v-if="activeTab === 'list'" 
+      :articles="articles" 
+      @delete="deleteArticle" 
+      @edit="handleEdit" 
+    />
 
-            <div class="field">
-                <label>District</label>
-                <select v-model="form.district" required>
-                    <option value="" disabled>Select a region</option>
-                    <option v-for="dist in districts" :key="dist" :value="dist">
-                        {{ dist.charAt(0).toUpperCase() + dist.slice(1) }}
-                    </option>
-                </select>
-            </div>
-
-            <div class="field">
-                <label>The Secret (Content)</label>
-                <textarea v-model="form.content" rows="5" placeholder="Tell the story..." required></textarea>
-            </div>
-
-            <div class="field">
-                <label>Category</label>
-                <select v-model="form.category" required>
-                    <option value="" disabled>Select a category</option>
-                    <option v-for="cat in categories" :key="cat" :value="cat">
-                        {{ cat.charAt(0).toUpperCase() + cat.slice(1) }}
-                    </option>
-                </select>
-            </div>
-
-            <div class="field">
-                <label>Featured Image</label>
-                <input type="file" accept="image/*" @change="handleFileChange" required />
-                <p class="hint">Recommended: 1200x800px JPG or WebP</p>
-            </div>
-
-            <button type="submit" :disabled="uploading" class="submit-btn">
-                {{ uploading ? 'Uploading to Cyprus...' : 'Publish Secret' }}
-            </button>
-
-            <p v-if="statusMsg" :class="['status', isError ? 'error' : 'success']">
-                {{ statusMsg }}
-            </p>
-        </form>
+    <div v-else class="create-section">
+      <ArticleForm 
+        :form="form" 
+        :districts="districts" 
+        :categories="categories" 
+        :uploading="uploading"
+        @submit="uploadArticle"
+        @file-change="handleFileChange"
+      />
+      <p v-if="statusMsg" :class="['status', isError ? 'error' : 'success']">{{ statusMsg }}</p>
     </div>
+  </div>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { supabase } from '../supabase';
 import { useRouter } from 'vue-router';
+import ArticleList from '@/components/ArticleList.vue';
+import ArticleForm from '@/components/ArticleForm.vue';
 
 const router = useRouter();
+const activeTab = ref('list');
+const articles = ref([]);
+const categories = ref([]);
+const districts = ref([]);
 const uploading = ref(false);
 const statusMsg = ref('');
 const isError = ref(false);
 const selectedFile = ref(null);
-const categories = ref([]);
-const districts = ref([]);
+const editingId = ref(null);
+
+const form = reactive({
+  title: '',
+  district: '',
+  content: '',
+  category: ''
+});
+
+const fetchArticles = async () => {
+  const { data, error } = await supabase
+    .from('articles')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (!error) articles.value = data;
+};
+
+fetchArticles();
+
+const deleteArticle = async (id) => {
+  if (confirm("Are you sure? This secret will be lost forever (like Atlantis).")) {
+    const { error } = await supabase
+      .from('articles')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      alert("Error deleting: " + error.message);
+    } else {
+      // Refresh the list
+      fetchSecrets();
+    }
+  }
+};
 
 const fetchEnums = async () => {
     // Fetch Categories using your category enum name
@@ -85,14 +100,19 @@ const processEnum = (data, fallback) => {
     return fallback;
 };
 
-fetchEnums();
+const handleEdit = (article) => {
+  form.title = article.title;
+  form.district = article.district;
+  form.content = article.content;
+  form.category = article.category;
 
-const form = reactive({
-    title: '',
-    district: '',
-    content: '',
-    category: 'Nature' // Default category
-});
+  editingId.value = article.id;
+
+  activeTab.value = 'create';
+};
+
+
+fetchEnums();
 
 const handleFileChange = (e) => {
     selectedFile.value = e.target.files[0];
@@ -103,7 +123,7 @@ const handleLogout = async () => {
     router.push('/login');
 };
 
-const uploadSecret = async () => {
+const uploadArticle = async () => {
     try {
         uploading.value = true;
         statusMsg.value = "Starting upload...";
@@ -153,104 +173,19 @@ const uploadSecret = async () => {
 
 <style scoped>
 .admin-wrap {
-    max-width: 600px;
-    margin: 4rem auto;
-    padding: 2rem;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
-
-.admin-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid #fdfcf8;
-    padding-bottom: 1rem;
-    margin-bottom: 2rem;
-}
-
-h1 {
-    color: #1c2a32;
-    font-size: 1.5rem;
-}
-
-.logout-btn {
-    background: none;
-    border: 1px solid #ddd;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8rem;
-}
-
-.secret-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-label {
-    font-weight: 600;
-    color: #1c2a32;
-    font-size: 0.9rem;
-}
-
-input,
-select,
-textarea {
-    padding: 0.8rem;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-family: inherit;
-}
-
-input:focus,
-textarea:focus {
-    border-color: #b57b52;
-    outline: none;
-}
-
-.submit-btn {
-    background: #b57b52;
-    color: white;
-    border: none;
-    padding: 1rem;
-    border-radius: 6px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 1rem;
-}
-
-.submit-btn:disabled {
-    background: #ccc;
-}
-
-.status {
-    padding: 1rem;
-    border-radius: 6px;
-    text-align: center;
-    font-size: 0.9rem;
-}
-
-.error {
-    background: #ffebee;
-    color: #c62828;
-}
-
-.success {
-    background: #e8f5e9;
-    color: #2e7d32;
-}
-
-.hint {
-    font-size: 0.75rem;
-    color: #888;
-}
+.admin-header { display: flex; justify-content: space-between; margin-bottom: 2rem; }
+.tabs { display: flex; gap: 0.5rem; }
+.tabs button { padding: 0.6rem 1.2rem; border: none; cursor: pointer; border-radius: 6px; }
+.tabs button.active { background: #b57b52; color: white; }
+.logout-btn { background: none; border: 1px solid #ddd; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
+.status { padding: 1rem; margin-top: 1rem; border-radius: 6px; text-align: center; }
+.error { background: #ffebee; color: #c62828; }
+.success { background: #e8f5e9; color: #2e7d32; }
 </style>
