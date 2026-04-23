@@ -162,14 +162,12 @@ const handleLogout = async () => {
 }
 
 .preview-window {
-  border: 1px solid #ddd;
   background: white;
-  border-radius: 0 8px 8px 8px;
+  border-radius: 12px;
+  max-height: 90dvh
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
   min-height: 600px;
-  max-height: 85vh;
   overflow-y: auto;
-  padding: 40px;
 }
 
 .preview-content h1 {
