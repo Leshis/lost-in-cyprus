@@ -1,11 +1,16 @@
 <template>
   <div v-if="article" class="article-page">
     <header class="article-hero">
-      <img v-if="article.image_url" :src="getImageUrl(article.image_url)" :alt="article.title" class="hero-bg-img"
-        fetchpriority="high" />
+      <img
+        v-if="article.image_url"
+        :src="getImageUrl(article.image_url)"
+        :alt="article.title"
+        class="hero-bg-img"
+        fetchPriority="high"
+      />
       <div v-else class="hero-bg-img fallback-bg"></div>
 
-      <button @click="goBack" class="back-btn">← Back</button>
+      <button @click="goBack" class="back-btn" aria-label="Go back">← Back</button>
 
       <div class="hero-overlay">
         <span class="category-pill">{{ article.category }}</span>
@@ -17,10 +22,14 @@
       <div class="meta-info">
         <div class="meta-left">
           <span class="district-tag">📍 {{ article.district }}</span>
-          <a v-if="article.lat && article.long"
+          <a
+            v-if="article.lat && article.long"
             :href="`https://www.google.com/maps/search/?api=1&query=${article.lat},${article.long}`"
-            target="_blank" rel="noopener noreferrer" class="map-link">
-            📍 View on Map
+            target="_blank"
+            rel="noopener noreferrer"
+            class="map-link"
+          >
+            🗺 View on Map
           </a>
         </div>
         <span class="date">{{ formatDate(article.created_at) }}</span>
@@ -32,14 +41,16 @@
 
   <div v-else class="error-state">
     <p v-if="isLoading || articleStore.loading">Loading secret details...</p>
+    <p v-else-if="error" class="error-message">{{ error }}</p>
     <p v-else>Secret not found. It might have been moved.</p>
     <button @click="router.push('/')">Return Home</button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useHead } from '@unhead/vue' // Remove if not using @vueuse/head
 import { useArticleStore } from '@/stores/articleStore'
 import { getImageUrl } from '@/utils/supabaseHelpers'
 
@@ -52,36 +63,43 @@ const error = ref<string | null>(null)
 const currentSlug = computed(() => route.params.slug as string)
 const article = computed(() => articleStore.getArticleBySlug(currentSlug.value))
 
-const loadData = async (slug: string) => {
-  console.log('loadData called with:', slug)
-  if (!slug || slug === 'undefined') {
-    console.warn('Slug is empty, bailing')
-    return
-  }
+// SEO — remove this block if not using @vueuse/head
+useHead({
+  title: computed(() => article.value?.title ?? 'Secret'),
+  meta: [
+    {
+      name: 'description',
+      content: computed(() =>
+        article.value?.content
+          ? article.value.content.slice(0, 155).trimEnd() + '…'
+          : 'Discover local secrets'
+      ),
+    },
+  ],
+})
 
-  if (articleStore.getArticleBySlug(slug)) {
-    console.log('Already cached, skipping fetch')
-    return
-  }
+const loadData = async (slug: string) => {
+  if (!slug || slug === 'undefined') return
+
+  if (articleStore.getArticleBySlug(slug)) return
 
   isLoading.value = true
+  error.value = null
+
   try {
     await articleStore.fetchArticleBySlug(slug)
-    console.log('After fetch, article:', articleStore.getArticleBySlug(slug))
   } catch (err) {
-    console.error('Fetch threw:', err)
-    error.value = 'Failed to load.'
+    console.error('Failed to load article:', err)
+    error.value = 'Failed to load this secret. Please try again.'
   } finally {
     isLoading.value = false
   }
 }
 
-// Remove immediate: true — just watch for subsequent slug changes (e.g. navigating article → article)
 watch(currentSlug, (slug) => {
   if (slug) loadData(slug)
 })
 
-// Use onMounted + isReady() so params are guaranteed to be populated
 onMounted(async () => {
   await router.isReady()
   loadData(currentSlug.value)
@@ -98,7 +116,9 @@ const goBack = () => {
 const formatDate = (dateString: string) => {
   if (!dateString) return ''
   return new Date(dateString).toLocaleDateString('en-GB', {
-    day: 'numeric', month: 'short', year: 'numeric'
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
   })
 }
 </script>
@@ -154,7 +174,6 @@ const formatDate = (dateString: string) => {
 }
 
 .back-btn:focus-visible,
-.book-btn:focus-visible,
 button:focus-visible {
   outline: 3px solid #1c2a32;
   outline-offset: 2px;
@@ -181,35 +200,6 @@ button:focus-visible {
   font-size: 1.1rem;
   color: #2c3e50;
   white-space: pre-wrap;
-}
-
-.cta-box {
-  margin-top: 40px;
-  padding: 30px;
-  background: #1c2a32;
-  color: white;
-  border-radius: 12px;
-  text-align: center;
-}
-
-.book-btn {
-  display: inline-block;
-  margin-top: 15px;
-  background: #c69f4b;
-  color: white;
-  padding: 12px 30px;
-  text-decoration: none;
-  border-radius: 8px;
-  font-weight: bold;
-}
-
-.error-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  gap: 15px;
 }
 
 .meta-info {
@@ -243,5 +233,18 @@ button:focus-visible {
 .map-link:hover {
   background: #c69f4b;
   color: white;
+}
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 15px;
+}
+
+.error-message {
+  color: #c0392b;
 }
 </style>
