@@ -1,17 +1,12 @@
 <template>
   <div v-if="article" class="article-page">
     <header class="article-hero">
-      <img 
-        v-if="article.image_url"
-        :src="getImageUrl(article.image_url)" 
-        :alt="article.title"
-        class="hero-bg-img"
-        fetchpriority="high"
-      />
+      <img v-if="article.image_url" :src="getImageUrl(article.image_url)" :alt="article.title" class="hero-bg-img"
+        fetchpriority="high" />
       <div v-else class="hero-bg-img fallback-bg"></div>
 
       <button @click="goBack" class="back-btn">← Back</button>
-      
+
       <div class="hero-overlay">
         <span class="category-pill">{{ article.category }}</span>
         <h1>{{ article.title }}</h1>
@@ -20,9 +15,18 @@
 
     <main class="article-body">
       <div class="meta-info">
-        <span class="district-tag">📍 {{ article.district }}</span>
+        <div class="meta-left">
+          <span class="district-tag">📍 {{ article.district }}</span>
+          <a v-if="article?.lat && article?.long"
+            :href="`https://www.google.com/maps/search/?api=1&query=${article.lat},${article.long}`" target="_blank"
+            rel="noopener noreferrer" class="map-link">
+            📍 View on Map
+          </a>
+        </div>
         <span class="date">{{ formatDate(article.created_at) }}</span>
       </div>
+
+
 
       <div class="content-text">
         {{ article.content }}
@@ -31,12 +35,7 @@
       <div v-if="article.affiliate_url" class="cta-box">
         <h3>Ready to experience this?</h3>
         <p>Support our site by booking through our partner link.</p>
-        <a 
-          :href="article.affiliate_url" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          class="book-btn"
-        >Book Now</a>
+        <a :href="article.affiliate_url" target="_blank" rel="noopener noreferrer" class="book-btn">Book Now</a>
       </div>
     </main>
   </div>
@@ -52,7 +51,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useArticleStore } from '@/stores/articleStore'
-import { getImageUrl } from '@/utils/supabaseHelpers' 
+import { getImageUrl } from '@/utils/supabaseHelpers'
 
 const route = useRoute()
 const router = useRouter()
@@ -61,18 +60,16 @@ const articleStore = useArticleStore()
 const isLoading = ref(true)
 
 onMounted(async () => {
-  try {
-    if (!articleStore.getArticleById(route.params.id)) {
-      if (articleStore.fetchArticleById) {
-        await articleStore.fetchArticleById(route.params.id)
-      } else if (articleStore.items.length === 0) {
-        await articleStore.fetchArticles()
-      }
-    }
-  } finally {
-    isLoading.value = false
+  isLoading.value = true;
+  const id = route.params.id;
+
+  const existing = articleStore.getArticleById(id);
+
+  if (!existing || existing.lat === undefined) {
+    await articleStore.fetchArticleById(id);
   }
-})
+  isLoading.value = false;
+});
 
 const article = computed(() => {
   return articleStore.getArticleById(route.params.id)
@@ -125,7 +122,7 @@ const formatDate = (dateString) => {
 }
 
 .hero-overlay {
-  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
   width: 100%;
   padding: 40px 20px 20px;
   color: white;
@@ -137,7 +134,7 @@ const formatDate = (dateString) => {
   position: absolute;
   top: 20px;
   left: 20px;
-  background: rgba(255,255,255,0.9);
+  background: rgba(255, 255, 255, 0.9);
   border: none;
   padding: 8px 15px;
   border-radius: 20px;
@@ -146,7 +143,7 @@ const formatDate = (dateString) => {
   z-index: 1;
 }
 
-.back-btn:focus-visible, 
+.back-btn:focus-visible,
 .book-btn:focus-visible,
 button:focus-visible {
   outline: 3px solid #1c2a32;
@@ -167,16 +164,6 @@ button:focus-visible {
   max-width: 800px;
   margin: 0 auto;
   padding: 30px 20px;
-}
-
-.meta-info {
-  display: flex;
-  justify-content: space-between;
-  color: #666;
-  font-size: 0.9rem;
-  margin-bottom: 25px;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 10px;
 }
 
 .content-text {
@@ -213,5 +200,38 @@ button:focus-visible {
   justify-content: center;
   min-height: 100vh;
   gap: 15px;
+}
+
+.meta-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 25px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+}
+
+.meta-left {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.map-link {
+  color: #c69f4b;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 2px 8px;
+  border: 1px solid #c69f4b;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.map-link:hover {
+  background: #c69f4b;
+  color: white;
 }
 </style>
