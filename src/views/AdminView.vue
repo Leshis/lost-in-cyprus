@@ -164,7 +164,7 @@ const handleLogout = async () => {
 .preview-window {
   background: white;
   border-radius: 12px;
-  max-height: 90dvh
+  max-height: 90dvh;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
   min-height: 600px;
   overflow-y: auto;
