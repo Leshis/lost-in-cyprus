@@ -128,6 +128,8 @@ button:focus-visible {
   max-width: 800px;
   margin: 0 auto;
   padding: 30px 20px;
+  max-height: 520px;
+  overflow-y: auto;
 }
 
 .content-text {
@@ -135,6 +137,8 @@ button:focus-visible {
   font-size: 1.1rem;
   color: #2c3e50;
   white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .meta-info {
