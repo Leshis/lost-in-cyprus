@@ -56,22 +56,31 @@ import { useRouter } from 'vue-router'
 import ArticleList from '@/components/ArticleList.vue'
 import ArticleForm from '@/components/ArticleForm.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
+import TurndownService from 'turndown';
 
 interface Article {
   id: string
   title: string
+  slug: string
   district: string
   content: string
   category: string
+  location: string
   image_url: string
   created_at: string
+  lat?: number
+  long?: number
 }
 
 interface ArticleFormFields {
   title: string
+  slug: string
   district: string
   content: string
   category: string
+  lat: number | null
+  long: number | null
+  location?: any
 }
 
 const router = useRouter()
@@ -89,24 +98,32 @@ const articleToDelete = ref<Article | null>(null)
 
 const form = reactive<ArticleFormFields>({
   title: '',
+  slug: '',
   district: '',
   content: '',
-  category: ''
+  category: '',
+  lat: null,
+  long: null
 })
+
+const processContent = (rawText: string) => {
+  const turndownService = new TurndownService();
+  return (turndownService as any).turndown(rawText);
+};
 
 // ─── Data fetching ────────────────────────────────────────────────────────────
 
 const fetchArticles = async () => {
   const { data, error } = await supabase
     .from('articles')
-    .select('*')
+    .select(`*`)
     .order('created_at', { ascending: false })
 
   if (error) {
     console.error('Failed to fetch articles:', error.message)
     return
   }
-  articles.value = (data as Article[]) ?? []
+  articles.value = (data as unknown as Article[]) ?? []
 }
 
 const fetchEnums = async () => {
@@ -132,8 +149,11 @@ onMounted(() => {
 
 // ─── Form handling ────────────────────────────────────────────────────────────
 
-const handleFileChange = (file: File) => {
-  selectedFile.value = file
+const handleFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files.length > 0) {
+    selectedFile.value = target.files[0];
+  }
 }
 
 const handleFormError = (message: string) => {
@@ -143,9 +163,13 @@ const handleFormError = (message: string) => {
 
 const handleEdit = (article: Article) => {
   form.title = article.title
+  form.slug = article.slug
   form.district = article.district
   form.content = article.content
   form.category = article.category
+  form.lat = article.lat ?? null
+  form.long = article.long ?? null
+
   editingId.value = article.id
   selectedFile.value = null
   statusMsg.value = ''
@@ -153,7 +177,15 @@ const handleEdit = (article: Article) => {
 }
 
 const resetForm = () => {
-  Object.assign(form, { title: '', district: '', content: '', category: '' })
+  Object.assign(form, { 
+    title: '', 
+    slug: '',
+    district: '', 
+    content: '', 
+    category: '',
+    lat: null,
+    long: null
+  })
   selectedFile.value = null
   editingId.value = null
   statusMsg.value = ''
@@ -172,6 +204,9 @@ const uploadArticle = async () => {
     uploading.value = true
     statusMsg.value = 'Saving...'
     isError.value = false
+    const processedMarkdown = processContent(form.content);
+    
+    const postgisPoint = `POINT(${form.long} ${form.lat})`;
 
     let imagePath: string | undefined
 
@@ -190,9 +225,11 @@ const uploadArticle = async () => {
     if (editingId.value) {
       const updates: Partial<Article> = {
         title: form.title,
+        slug: form.slug,
         district: form.district,
-        content: form.content,
+        content: processedMarkdown,
         category: form.category,
+        location: postgisPoint,
         ...(imagePath && { image_url: imagePath })
       }
 
@@ -210,9 +247,11 @@ const uploadArticle = async () => {
         .from('articles')
         .insert([{
           title: form.title,
+          slug: form.slug,
           district: form.district,
           content: form.content,
           category: form.category,
+          location: postgisPoint,
           image_url: imagePath
         }])
 

@@ -12,13 +12,15 @@
     "lint:eslint": "eslint . --fix --cache"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.40.0",
     "pinia": "^3.0.4",
+    "turndown": "^7.2.4",
     "vue": "^3.5.31",
-    "vue-router": "^5.0.4",
-    "@supabase/supabase-js": "^2.40.0"
+    "vue-router": "^5.0.4"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/turndown": "^5.0.6",
     "@vitejs/plugin-vue": "^6.0.5",
     "eslint": "^10.1.0",
     "eslint-plugin-oxlint": "~1.57.0",
