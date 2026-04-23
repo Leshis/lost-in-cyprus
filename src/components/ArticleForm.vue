@@ -171,6 +171,7 @@ label {
 
 input, select, textarea {
   padding: 0.9rem;
+  width: 100%;
   border: 2px solid #edf2f7;
   border-radius: 8px;
   font-family: 'Inter', sans-serif;
