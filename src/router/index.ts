@@ -37,20 +37,15 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   const { data: { session } } = await supabase.auth.getSession();
 
-  // If the route requires auth and there is no session...
   if (to.meta.requiresAuth && !session) {
-    // Return the path you want to redirect to
     return '/login';
   }
 
-  // If the user is logged in and tries to go to the login page...
   if (to.path === '/login' && session) {
-    // Redirect them to the secret gate instead
     return '/gate';
   }
 
-  // Otherwise, returning nothing (or undefined) allows the navigation
   return true;
 });
 
-export default router
+export default router;

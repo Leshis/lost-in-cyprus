@@ -12,18 +12,30 @@
       <button @click="handleLogout" class="logout-btn">Logout</button>
     </header>
 
-    <ArticleList v-if="activeTab === 'list'" :articles="articles" @delete="openDeleteModal" @edit="handleEdit" />
+    <ArticleList
+      v-if="activeTab === 'list'"
+      :articles="articles"
+      @delete="openDeleteModal"
+      @edit="handleEditAndSwitch"
+    />
 
     <div v-else class="admin-editor-layout">
-
       <div class="create-section">
         <p v-if="editingId" class="editing-banner">
-          ✏️ Editing article — <button class="link-btn" @click="resetForm">cancel and create new</button>
+          ✏️ Editing article —
+          <button class="link-btn" @click="resetForm">cancel and create new</button>
         </p>
 
-        <ArticleForm v-model:form="form" :districts="districts" :categories="categories" :uploading="uploading"
-          :require-image="!editingId" @submit="uploadArticle" @file-change="handleFileChange"
-          @error="handleFormError" />
+        <ArticleForm
+          v-model:form="form"
+          :districts="districts"
+          :categories="categories"
+          :uploading="uploading"
+          :require-image="!editingId"
+          @submit="uploadArticle"
+          @file-change="handleFileChange"
+          @error="handleFormError"
+        />
 
         <p v-if="statusMsg" :class="['status', isError ? 'error' : 'success']">
           {{ statusMsg }}
@@ -38,268 +50,58 @@
           </div>
         </div>
       </aside>
-
     </div>
 
-    <ConfirmModal :isOpen="isModalOpen" :title="articleToDelete?.title || 'this article'" @confirm="executeDelete"
-      @cancel="closeModal" />
+    <ConfirmModal
+      :isOpen="isModalOpen"
+      :title="articleToDelete?.title || 'this article'"
+      @confirm="executeDelete"
+      @cancel="closeModal"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { supabase } from '../supabase'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useHead } from '@unhead/vue'
+import { supabase } from '../supabase'
+import { useAdminArticles } from '@/composables/useAdminArticles'
+import { useArticleForm } from '@/composables/useArticleForm'
+import { useDeleteModal } from '@/composables/useDeleteModal'
 import ArticleContent from '@/components/ArticleContent.vue'
 import ArticleList from '@/components/ArticleList.vue'
 import ArticleForm from '@/components/ArticleForm.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
-import TurndownService from 'turndown';
+import type { Article } from '@/composables/useAdminArticles'
 
-interface Article {
-  id: string
-  title: string
-  slug: string
-  district: string
-  content: string
-  category: string
-  location: string
-  image_url: string
-  created_at: string
-  lat?: number
-  long?: number
-}
-
-interface ArticleFormFields {
-  title: string
-  slug: string
-  district: string
-  content: string
-  category: string
-  lat: number | null
-  long: number | null
-  location?: any
-}
+useHead({
+  title: 'Admin',
+  meta: [{ name: 'robots', content: 'noindex, nofollow' }]
+})
 
 const router = useRouter()
 const activeTab = ref<'list' | 'create'>('list')
-const articles = ref<Article[]>([])
-const categories = ref<string[]>([])
-const districts = ref<string[]>([])
-const uploading = ref(false)
-const statusMsg = ref('')
-const isError = ref(false)
-const selectedFile = ref<File | null>(null)
-const editingId = ref<string | null>(null)
-const isModalOpen = ref(false)
-const articleToDelete = ref<Article | null>(null)
 
-const form = reactive<ArticleFormFields>({
-  title: '',
-  slug: '',
-  district: '',
-  content: '',
-  category: '',
-  lat: null,
-  long: null
-})
+const { articles, categories, districts, fetchArticles } = useAdminArticles()
 
-const processContent = (rawText: string) => {
-  const turndownService = new TurndownService();
-  return (turndownService as any).turndown(rawText);
-};
+const {
+  form, uploading, statusMsg, isError, editingId,
+  resetForm, handleEdit, handleFileChange, handleFormError, uploadArticle,
+} = useArticleForm(fetchArticles)
 
-// ─── Data fetching ────────────────────────────────────────────────────────────
-
-const fetchArticles = async () => {
-  const { data, error } = await supabase
-    .from('articles')
-    .select(`*`)
-    .order('created_at', { ascending: false })
-
-  if (error) {
-    console.error('Failed to fetch articles:', error.message)
-    return
-  }
-  articles.value = (data as unknown as Article[]) ?? []
-}
-
-const fetchEnums = async () => {
-  const { data: catData } = await supabase.rpc('get_enum_values', { type_name: 'category_type' })
-  if (catData) categories.value = processEnum(catData, ['hiking', 'food', 'culture', 'wine'])
-
-  const { data: distData } = await supabase.rpc('get_enum_values', { type_name: 'district' })
-  if (distData) districts.value = processEnum(distData, ['limassol', 'paphos', 'nicosia', 'larnaca', 'kyrenia', 'famagusta'])
-}
-
-const processEnum = (data: unknown, fallback: string[]): string[] => {
-  const raw = Array.isArray(data) ? data[0] : data
-  if (typeof raw === 'string' && raw !== '') {
-    return raw.replace(/{|}/g, '').split(',')
-  }
-  return fallback
-}
-
-onMounted(() => {
-  fetchArticles()
-  fetchEnums()
-})
-
-// ─── Form handling ────────────────────────────────────────────────────────────
-
-const handleFileChange = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  if (target.files && target.files.length > 0) {
-    selectedFile.value = target.files[0];
-  }
-}
-
-const handleFormError = (message: string) => {
-  isError.value = true
-  statusMsg.value = message
-}
-
-const handleEdit = (article: Article) => {
-  form.title = article.title
-  form.slug = article.slug
-  form.district = article.district
-  form.content = article.content
-  form.category = article.category
-  form.lat = article.lat ?? null
-  form.long = article.long ?? null
-
-  editingId.value = article.id
-  selectedFile.value = null
-  statusMsg.value = ''
-  activeTab.value = 'create'
-}
-
-const resetForm = () => {
-  Object.assign(form, {
-    title: '',
-    slug: '',
-    district: '',
-    content: '',
-    category: '',
-    lat: null,
-    long: null
-  })
-  selectedFile.value = null
-  editingId.value = null
-  statusMsg.value = ''
-  isError.value = false
-}
+const { isModalOpen, articleToDelete, openDeleteModal, closeModal, executeDelete } =
+  useDeleteModal(articles)
 
 const switchToList = () => {
   activeTab.value = 'list'
   statusMsg.value = ''
 }
 
-// ─── Upload / update ──────────────────────────────────────────────────────────
-
-const uploadArticle = async () => {
-  try {
-    uploading.value = true
-    statusMsg.value = 'Saving...'
-    isError.value = false
-    const processedMarkdown = processContent(form.content);
-
-    const postgisPoint = `POINT(${form.long} ${form.lat})`;
-
-    let imagePath: string | undefined
-
-    if (selectedFile.value) {
-      const fileExt = selectedFile.value.name.split('.').pop()
-      const fileName = `${crypto.randomUUID()}.${fileExt}`
-
-      const { error: uploadError } = await supabase.storage
-        .from('articles')
-        .upload(fileName, selectedFile.value)
-
-      if (uploadError) throw uploadError
-      imagePath = fileName
-    }
-
-    if (editingId.value) {
-      const updates: Partial<Article> = {
-        title: form.title,
-        slug: form.slug,
-        district: form.district,
-        content: processedMarkdown,
-        category: form.category,
-        location: postgisPoint,
-        ...(imagePath && { image_url: imagePath })
-      }
-
-      const { error: dbError } = await supabase
-        .from('articles')
-        .update(updates)
-        .eq('id', editingId.value)
-
-      if (dbError) throw dbError
-      statusMsg.value = 'Article updated successfully!'
-    } else {
-      if (!imagePath) throw new Error('Please select an image.')
-
-      const { error: dbError } = await supabase
-        .from('articles')
-        .insert([{
-          title: form.title,
-          slug: form.slug,
-          district: form.district,
-          content: form.content,
-          category: form.category,
-          location: postgisPoint,
-          image_url: imagePath
-        }])
-
-      if (dbError) throw dbError
-      statusMsg.value = 'Article published successfully!'
-    }
-
-    resetForm()
-    await fetchArticles()
-  } catch (err) {
-    isError.value = true
-    statusMsg.value = err instanceof Error ? err.message : 'An unexpected error occurred.'
-  } finally {
-    uploading.value = false
-  }
+const handleEditAndSwitch = (article: Article) => {
+  handleEdit(article)
+  activeTab.value = 'create'
 }
-
-// ─── Delete ───────────────────────────────────────────────────────────────────
-
-const openDeleteModal = (id: string) => {
-  articleToDelete.value = articles.value.find(a => a.id === id) || null
-  isModalOpen.value = true
-}
-
-const closeModal = () => {
-  isModalOpen.value = false
-  articleToDelete.value = null
-}
-
-const executeDelete = async () => {
-  // Guard clause for TypeScript safety
-  if (!articleToDelete.value) return
-
-  const idToDelete = articleToDelete.value.id
-
-  const { error } = await supabase
-    .from('articles')
-    .delete()
-    .eq('id', idToDelete)
-
-  if (error) {
-    console.error('Delete failed:', error.message)
-  } else {
-    articles.value = articles.value.filter(a => a.id !== idToDelete)
-  }
-
-  closeModal()
-}
-
-// ─── Auth ─────────────────────────────────────────────────────────────────────
 
 const handleLogout = async () => {
   await supabase.auth.signOut()

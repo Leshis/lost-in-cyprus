@@ -1,7 +1,5 @@
-// src/utils/supabaseHelpers.js
-
 // CRITICAL: You MUST have the 'export' keyword here
-export const getImageUrl = (path) => {
+export const getImageUrl = (path: string) => {
   if (!path) return 'https://placehold.jp/24/1c2a32/ffffff/150x150.png?text=LostInCyprus';
 
   // Make sure these match your Supabase Dashboard exactly
