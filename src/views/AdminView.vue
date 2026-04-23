@@ -12,12 +12,21 @@
       <button @click="handleLogout" class="logout-btn">Logout</button>
     </header>
 
-    <ArticleList
-      v-if="activeTab === 'list'"
-      :articles="articles"
-      @delete="deleteArticle"
-      @edit="handleEdit"
+    <div class="admin-wrap">
+    <ArticleList 
+      v-if="activeTab === 'list'" 
+      :articles="articles" 
+      @delete="openDeleteModal" 
+      @edit="handleEdit" 
     />
+
+    <ConfirmModal 
+      :isOpen="isModalOpen" 
+      :title="articleToDelete?.title"
+      @confirm="executeDelete"
+      @cancel="closeModal"
+    />
+  </div>
 
     <div v-else class="create-section">
       <p v-if="editingId" class="editing-banner">
@@ -48,6 +57,7 @@ import { supabase } from '../supabase'
 import { useRouter } from 'vue-router'
 import ArticleList from '@/components/ArticleList.vue'
 import ArticleForm from '@/components/ArticleForm.vue'
+import ConfirmModal from '@/components/ConfirmModal.vue';
 
 interface Article {
   id: string
@@ -76,6 +86,8 @@ const statusMsg = ref('')
 const isError = ref(false)
 const selectedFile = ref<File | null>(null)
 const editingId = ref<string | null>(null)
+const isModalOpen = ref(false);
+const articleToDelete = ref(null);
 
 const form = reactive<ArticleForm>({
   title: '',
@@ -229,23 +241,34 @@ const uploadArticle = async () => {
 
 // ─── Delete ───────────────────────────────────────────────────────────────────
 
-const deleteArticle = async (id: string) => {
-  if (!confirm('Are you sure you want to delete this article?')) return
+const openDeleteModal = (id) => {
+  // Find the full article object so we can show the title in the modal
+  articleToDelete.value = articles.value.find(a => a.id === id);
+  isModalOpen.value = true;
+};
+
+const closeModal = () => {
+  isModalOpen.value = false;
+  articleToDelete.value = null;
+};
+
+const executeDelete = async () => {
+  if (!articleToDelete.value) return;
 
   const { error } = await supabase
     .from('articles')
     .delete()
-    .eq('id', id)
+    .eq('id', articleToDelete.value.id);
 
   if (error) {
-    console.error('Delete failed:', error.message)
-    statusMsg.value = 'Failed to delete article.'
-    isError.value = true
-    return
+    console.error('Delete failed:', error.message);
+  } else {
+    // Optimized: Update the UI immediately without a full fetch
+    articles.value = articles.value.filter(a => a.id !== articleToDelete.value.id);
   }
 
-  await fetchArticles()
-}
+  closeModal();
+};
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
