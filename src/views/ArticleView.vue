@@ -17,26 +17,16 @@
       <div class="meta-info">
         <div class="meta-left">
           <span class="district-tag">📍 {{ article.district }}</span>
-          <a v-if="article?.lat && article?.long"
-            :href="`https://www.google.com/maps/search/?api=1&query=${article.lat},${article.long}`" target="_blank"
-            rel="noopener noreferrer" class="map-link">
+          <a v-if="article.lat && article.long"
+            :href="`https://www.google.com/maps/search/?api=1&query=${article.lat},${article.long}`"
+            target="_blank" rel="noopener noreferrer" class="map-link">
             📍 View on Map
           </a>
         </div>
         <span class="date">{{ formatDate(article.created_at) }}</span>
       </div>
 
-
-
-      <div class="content-text">
-        {{ article.content }}
-      </div>
-
-      <div v-if="article.affiliate_url" class="cta-box">
-        <h3>Ready to experience this?</h3>
-        <p>Support our site by booking through our partner link.</p>
-        <a :href="article.affiliate_url" target="_blank" rel="noopener noreferrer" class="book-btn">Book Now</a>
-      </div>
+      <div class="content-text">{{ article.content }}</div>
     </main>
   </div>
 
@@ -47,8 +37,8 @@
   </div>
 </template>
 
-<script setup>
-import { computed, onMounted, ref } from 'vue'
+<script setup lang="ts">
+import { computed, ref, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useArticleStore } from '@/stores/articleStore'
 import { getImageUrl } from '@/utils/supabaseHelpers'
@@ -56,23 +46,45 @@ import { getImageUrl } from '@/utils/supabaseHelpers'
 const route = useRoute()
 const router = useRouter()
 const articleStore = useArticleStore()
+const isLoading = ref(false)
+const error = ref<string | null>(null)
 
-const isLoading = ref(true)
+const currentSlug = computed(() => route.params.slug as string)
+const article = computed(() => articleStore.getArticleBySlug(currentSlug.value))
 
-onMounted(async () => {
-  isLoading.value = true;
-  const id = route.params.id;
-
-  const existing = articleStore.getArticleById(id);
-
-  if (!existing || existing.lat === undefined) {
-    await articleStore.fetchArticleById(id);
+const loadData = async (slug: string) => {
+  console.log('loadData called with:', slug)
+  if (!slug || slug === 'undefined') {
+    console.warn('Slug is empty, bailing')
+    return
   }
-  isLoading.value = false;
-});
 
-const article = computed(() => {
-  return articleStore.getArticleById(route.params.id)
+  if (articleStore.getArticleBySlug(slug)) {
+    console.log('Already cached, skipping fetch')
+    return
+  }
+
+  isLoading.value = true
+  try {
+    await articleStore.fetchArticleBySlug(slug)
+    console.log('After fetch, article:', articleStore.getArticleBySlug(slug))
+  } catch (err) {
+    console.error('Fetch threw:', err)
+    error.value = 'Failed to load.'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Remove immediate: true — just watch for subsequent slug changes (e.g. navigating article → article)
+watch(currentSlug, (slug) => {
+  if (slug) loadData(slug)
+})
+
+// Use onMounted + isReady() so params are guaranteed to be populated
+onMounted(async () => {
+  await router.isReady()
+  loadData(currentSlug.value)
 })
 
 const goBack = () => {
@@ -83,12 +95,10 @@ const goBack = () => {
   }
 }
 
-const formatDate = (dateString) => {
+const formatDate = (dateString: string) => {
   if (!dateString) return ''
   return new Date(dateString).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
+    day: 'numeric', month: 'short', year: 'numeric'
   })
 }
 </script>

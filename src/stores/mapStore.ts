@@ -1,11 +1,17 @@
 import { defineStore } from 'pinia'
 
+interface MapState {
+  selectedDistrict: string | null
+}
+
 export const useMapStore = defineStore('map', {
-  state: () => ({
+  state: (): MapState => ({
     selectedDistrict: null,
   }),
+  
   actions: {
-    setSelectedDistrict(districtId) {
+    // 3. Define the parameter type
+    setSelectedDistrict(districtId: string | null) {
       this.selectedDistrict = districtId
     }
   }

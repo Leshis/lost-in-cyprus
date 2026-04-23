@@ -36,8 +36,7 @@ export const useArticleStore = defineStore('articles', {
     },
 
     getArticleBySlug: (state) => {
-      return (slug: string): Article | undefined =>
-        state.items.find(article => article.slug === slug)
+      return (slug: string) => state.items.find(item => item.slug === slug)
     }
   },
 
@@ -94,6 +93,33 @@ export const useArticleStore = defineStore('articles', {
         console.error('Error fetching single article:', error);
       } finally {
         this.loading = false;
+      }
+    },
+
+    // Inside your actions:
+    async fetchArticleBySlug(slug: string) {
+      this.loading = true
+      try {
+        const { data, error } = await supabase
+          .from('article_details')
+          .select('*')
+          .eq('slug', slug)
+          .single()
+
+        if (error) throw error
+        if (data) {
+          const typedData = data as Article
+          const index = this.items.findIndex(item => item.slug === slug)
+          if (index !== -1) {
+            this.items[index] = typedData
+          } else {
+            this.items.push(typedData)
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching by slug:', error)
+      } finally {
+        this.loading = false
       }
     }
   }

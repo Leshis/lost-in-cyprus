@@ -128,9 +128,10 @@ const filteredLocations = computed(() => {
 // NEW: Smart routing for Affiliate Links vs Internal Pages
 const handleAction = (loc) => {
   if (loc.affiliate_url) {
-    window.open(loc.affiliate_url, '_blank');
+    window.open(loc.affiliate_url, '_blank')
   } else {
-    router.push(`/article/${loc.id}`);
+    // Navigate using the slug!
+    router.push(`/article/${loc.slug}`)
   }
 };
 </script>
