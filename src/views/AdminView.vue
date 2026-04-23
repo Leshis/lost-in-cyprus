@@ -136,7 +136,6 @@ const handleLogout = async () => {
 
 .create-section {
   flex: 1;
-  min-width: 400px;
   background: white;
   padding: 2rem;
   border-radius: 12px;
@@ -270,10 +269,6 @@ const handleLogout = async () => {
 @media (max-width: 1100px) {
   .live-preview-section {
     display: none;
-  }
-
-  .admin-wrap {
-    max-width: 900px;
   }
 
   .admin-editor-layout {
