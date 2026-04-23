@@ -42,13 +42,12 @@
 
     <ConfirmModal 
       :isOpen="isModalOpen" 
-      :title="articleToDelete?.title"
+      :title="articleToDelete?.title || 'this article'"
       @confirm="executeDelete"
       @cancel="closeModal"
     />
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
@@ -56,7 +55,7 @@ import { supabase } from '../supabase'
 import { useRouter } from 'vue-router'
 import ArticleList from '@/components/ArticleList.vue'
 import ArticleForm from '@/components/ArticleForm.vue'
-import ConfirmModal from '@/components/ConfirmModal.vue';
+import ConfirmModal from '@/components/ConfirmModal.vue'
 
 interface Article {
   id: string
@@ -68,7 +67,7 @@ interface Article {
   created_at: string
 }
 
-interface ArticleForm {
+interface ArticleFormFields {
   title: string
   district: string
   content: string
@@ -85,10 +84,10 @@ const statusMsg = ref('')
 const isError = ref(false)
 const selectedFile = ref<File | null>(null)
 const editingId = ref<string | null>(null)
-const isModalOpen = ref(false);
-const articleToDelete = ref(null);
+const isModalOpen = ref(false)
+const articleToDelete = ref<Article | null>(null)
 
-const form = reactive<ArticleForm>({
+const form = reactive<ArticleFormFields>({
   title: '',
   district: '',
   content: '',
@@ -107,16 +106,15 @@ const fetchArticles = async () => {
     console.error('Failed to fetch articles:', error.message)
     return
   }
-
-  articles.value = data ?? []
+  articles.value = (data as Article[]) ?? []
 }
 
 const fetchEnums = async () => {
   const { data: catData } = await supabase.rpc('get_enum_values', { type_name: 'category_type' })
-  categories.value = processEnum(catData, ['hiking', 'food', 'culture', 'wine'])
+  if (catData) categories.value = processEnum(catData, ['hiking', 'food', 'culture', 'wine'])
 
   const { data: distData } = await supabase.rpc('get_enum_values', { type_name: 'district' })
-  districts.value = processEnum(distData, ['limassol', 'paphos', 'nicosia', 'larnaca', 'kyrenia', 'famagusta'])
+  if (distData) districts.value = processEnum(distData, ['limassol', 'paphos', 'nicosia', 'larnaca', 'kyrenia', 'famagusta'])
 }
 
 const processEnum = (data: unknown, fallback: string[]): string[] => {
@@ -186,12 +184,10 @@ const uploadArticle = async () => {
         .upload(fileName, selectedFile.value)
 
       if (uploadError) throw uploadError
-
       imagePath = fileName
     }
 
     if (editingId.value) {
-      // ── Update existing article ──
       const updates: Partial<Article> = {
         title: form.title,
         district: form.district,
@@ -206,10 +202,8 @@ const uploadArticle = async () => {
         .eq('id', editingId.value)
 
       if (dbError) throw dbError
-
       statusMsg.value = 'Article updated successfully!'
     } else {
-      // ── Insert new article ──
       if (!imagePath) throw new Error('Please select an image.')
 
       const { error: dbError } = await supabase
@@ -223,13 +217,11 @@ const uploadArticle = async () => {
         }])
 
       if (dbError) throw dbError
-
       statusMsg.value = 'Article published successfully!'
     }
 
     resetForm()
     await fetchArticles()
-
   } catch (err) {
     isError.value = true
     statusMsg.value = err instanceof Error ? err.message : 'An unexpected error occurred.'
@@ -240,34 +232,35 @@ const uploadArticle = async () => {
 
 // ─── Delete ───────────────────────────────────────────────────────────────────
 
-const openDeleteModal = (id) => {
-  // Find the full article object so we can show the title in the modal
-  articleToDelete.value = articles.value.find(a => a.id === id);
-  isModalOpen.value = true;
-};
+const openDeleteModal = (id: string) => {
+  articleToDelete.value = articles.value.find(a => a.id === id) || null
+  isModalOpen.value = true
+}
 
 const closeModal = () => {
-  isModalOpen.value = false;
-  articleToDelete.value = null;
-};
+  isModalOpen.value = false
+  articleToDelete.value = null
+}
 
 const executeDelete = async () => {
-  if (!articleToDelete.value) return;
+  // Guard clause for TypeScript safety
+  if (!articleToDelete.value) return
+
+  const idToDelete = articleToDelete.value.id
 
   const { error } = await supabase
     .from('articles')
     .delete()
-    .eq('id', articleToDelete.value.id);
+    .eq('id', idToDelete)
 
   if (error) {
-    console.error('Delete failed:', error.message);
+    console.error('Delete failed:', error.message)
   } else {
-    // Optimized: Update the UI immediately without a full fetch
-    articles.value = articles.value.filter(a => a.id !== articleToDelete.value.id);
+    articles.value = articles.value.filter(a => a.id !== idToDelete)
   }
 
-  closeModal();
-};
+  closeModal()
+}
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
@@ -278,6 +271,7 @@ const handleLogout = async () => {
 </script>
 
 <style scoped>
+/* Styles remain unchanged as they were already functional */
 .admin-wrap {
   max-width: 900px;
   margin: 2rem auto;
