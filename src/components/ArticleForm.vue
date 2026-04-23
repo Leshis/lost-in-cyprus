@@ -142,11 +142,6 @@ watch(() => props.form.title, (newTitle) => {
   flex-direction: column;
   gap: 1.5rem;
   max-width: 800px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 
 .form-row {
