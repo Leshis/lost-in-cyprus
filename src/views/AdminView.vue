@@ -12,21 +12,12 @@
       <button @click="handleLogout" class="logout-btn">Logout</button>
     </header>
 
-    <div class="admin-wrap">
     <ArticleList 
       v-if="activeTab === 'list'" 
       :articles="articles" 
       @delete="openDeleteModal" 
       @edit="handleEdit" 
     />
-
-    <ConfirmModal 
-      :isOpen="isModalOpen" 
-      :title="articleToDelete?.title"
-      @confirm="executeDelete"
-      @cancel="closeModal"
-    />
-  </div>
 
     <div v-else class="create-section">
       <p v-if="editingId" class="editing-banner">
@@ -48,8 +39,16 @@
         {{ statusMsg }}
       </p>
     </div>
+
+    <ConfirmModal 
+      :isOpen="isModalOpen" 
+      :title="articleToDelete?.title"
+      @confirm="executeDelete"
+      @cancel="closeModal"
+    />
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
