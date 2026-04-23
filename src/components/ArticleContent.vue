@@ -76,7 +76,7 @@ const formatDate = (dateString?: string) => {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 100svw; 
   height: 100%;
   object-fit: cover;
   z-index: 0;
