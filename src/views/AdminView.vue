@@ -112,7 +112,6 @@ const handleLogout = async () => {
 <style scoped>
 .admin-wrap {
   max-width: 1600px;
-  margin: 2rem auto;
   padding: 2rem;
 }
 
