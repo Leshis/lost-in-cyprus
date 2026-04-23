@@ -12,40 +12,37 @@
       <button @click="handleLogout" class="logout-btn">Logout</button>
     </header>
 
-    <ArticleList 
-      v-if="activeTab === 'list'" 
-      :articles="articles" 
-      @delete="openDeleteModal" 
-      @edit="handleEdit" 
-    />
+    <ArticleList v-if="activeTab === 'list'" :articles="articles" @delete="openDeleteModal" @edit="handleEdit" />
 
-    <div v-else class="create-section">
-      <p v-if="editingId" class="editing-banner">
-        ✏️ Editing article — <button class="link-btn" @click="resetForm">cancel and create new</button>
-      </p>
+    <div v-else class="admin-editor-layout">
 
-      <ArticleForm
-        v-model:form="form"
-        :districts="districts"
-        :categories="categories"
-        :uploading="uploading"
-        :require-image="!editingId"
-        @submit="uploadArticle"
-        @file-change="handleFileChange"
-        @error="handleFormError"
-      />
+      <div class="create-section">
+        <p v-if="editingId" class="editing-banner">
+          ✏️ Editing article — <button class="link-btn" @click="resetForm">cancel and create new</button>
+        </p>
 
-      <p v-if="statusMsg" :class="['status', isError ? 'error' : 'success']">
-        {{ statusMsg }}
-      </p>
+        <ArticleForm v-model:form="form" :districts="districts" :categories="categories" :uploading="uploading"
+          :require-image="!editingId" @submit="uploadArticle" @file-change="handleFileChange"
+          @error="handleFormError" />
+
+        <p v-if="statusMsg" :class="['status', isError ? 'error' : 'success']">
+          {{ statusMsg }}
+        </p>
+      </div>
+
+      <aside class="live-preview-section">
+        <div class="preview-sticky-wrapper">
+          <div class="preview-badge">Live Preview</div>
+          <div class="preview-window">
+            <ArticleContent :article="form" :isPreview="true" />
+          </div>
+        </div>
+      </aside>
+
     </div>
 
-    <ConfirmModal 
-      :isOpen="isModalOpen" 
-      :title="articleToDelete?.title || 'this article'"
-      @confirm="executeDelete"
-      @cancel="closeModal"
-    />
+    <ConfirmModal :isOpen="isModalOpen" :title="articleToDelete?.title || 'this article'" @confirm="executeDelete"
+      @cancel="closeModal" />
   </div>
 </template>
 
@@ -53,6 +50,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { supabase } from '../supabase'
 import { useRouter } from 'vue-router'
+import ArticleContent from '@/components/ArticleContent.vue'
 import ArticleList from '@/components/ArticleList.vue'
 import ArticleForm from '@/components/ArticleForm.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
@@ -177,11 +175,11 @@ const handleEdit = (article: Article) => {
 }
 
 const resetForm = () => {
-  Object.assign(form, { 
-    title: '', 
+  Object.assign(form, {
+    title: '',
     slug: '',
-    district: '', 
-    content: '', 
+    district: '',
+    content: '',
     category: '',
     lat: null,
     long: null
@@ -205,7 +203,7 @@ const uploadArticle = async () => {
     statusMsg.value = 'Saving...'
     isError.value = false
     const processedMarkdown = processContent(form.content);
-    
+
     const postgisPoint = `POINT(${form.long} ${form.lat})`;
 
     let imagePath: string | undefined
@@ -310,14 +308,10 @@ const handleLogout = async () => {
 </script>
 
 <style scoped>
-/* Styles remain unchanged as they were already functional */
 .admin-wrap {
-  max-width: 900px;
+  max-width: 1600px;
   margin: 2rem auto;
   padding: 2rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .admin-header {
@@ -325,6 +319,82 @@ const handleLogout = async () => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.admin-editor-layout {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 30px;
+}
+
+.create-section {
+  flex: 1;
+  min-width: 400px;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.live-preview-section {
+  flex: 1;
+}
+
+.preview-sticky-wrapper {
+  position: sticky;
+  top: 20px;
+}
+
+.preview-badge {
+  background: #333;
+  color: white;
+  display: inline-block;
+  padding: 4px 12px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 4px 4px 0 0;
+}
+
+.preview-window {
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 0 8px 8px 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+  min-height: 600px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 40px;
+}
+
+.preview-content h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.preview-meta {
+  margin-bottom: 2rem;
+  color: #666;
+  display: flex;
+  gap: 10px;
+}
+
+.preview-text {
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.preview-map-mock {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f0fdf4;
+  border: 1px dashed #4ade80;
+  border-radius: 8px;
 }
 
 .tabs {
@@ -393,5 +463,19 @@ const handleLogout = async () => {
 .success {
   background: #e8f5e9;
   color: #2e7d32;
+}
+
+@media (max-width: 1100px) {
+  .live-preview-section {
+    display: none;
+  }
+
+  .admin-wrap {
+    max-width: 900px;
+  }
+
+  .admin-editor-layout {
+    display: block;
+  }
 }
 </style>

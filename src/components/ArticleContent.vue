@@ -1,79 +1,55 @@
 <template>
-  <div v-if="article">
-    <ArticleContent :article="article" @back="goBack" />
+  <div class="article-page">
+    <header class="article-hero">
+      <img
+        v-if="article.image_url"
+        :src="getImageUrl(article.image_url)"
+        :alt="article.title"
+        class="hero-bg-img"
+      />
+      <div v-else class="hero-bg-img fallback-bg"></div>
+
+      <button v-if="!isPreview" @click="$emit('back')" class="back-btn">← Back</button>
+
+      <div class="hero-overlay">
+        <span class="category-pill">{{ article.category || 'Category' }}</span>
+        <h1>{{ article.title || 'Untitled Secret' }}</h1>
+      </div>
+    </header>
+
+    <main class="article-body">
+      <div class="meta-info">
+        <div class="meta-left">
+          <span class="district-tag">📍 {{ article.district || 'District' }}</span>
+          <a
+            v-if="article.lat && article.long"
+            :href="`https://www.google.com/maps?q=${article.lat},${article.long}`"
+            target="_blank"
+            class="map-link"
+          >
+            🗺 View on Map
+          </a>
+        </div>
+        <span class="date">{{ formatDate(article.created_at) }}</span>
+      </div>
+
+      <div class="content-text">{{ article.content || 'Start writing your secret...' }}</div>
+    </main>
   </div>
-  <div v-else class="error-state">
-     </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useHead } from '@unhead/vue' // Remove if not using @vueuse/head
-import { useArticleStore } from '@/stores/articleStore'
-import ArticleContent from '@/components/ArticleContent.vue'
+import { getImageUrl } from '@/utils/supabaseHelpers'
 
-const route = useRoute()
-const router = useRouter()
-const articleStore = useArticleStore()
-const isLoading = ref(false)
-const error = ref<string | null>(null)
+defineProps<{
+  article: any;
+  isPreview?: boolean;
+}>();
 
-const currentSlug = computed(() => route.params.slug as string)
-const article = computed(() => articleStore.getArticleBySlug(currentSlug.value))
+defineEmits(['back']);
 
-// SEO — remove this block if not using @vueuse/head
-useHead({
-  title: computed(() => article.value?.title ?? 'Secret'),
-  meta: [
-    {
-      name: 'description',
-      content: computed(() =>
-        article.value?.content
-          ? article.value.content.slice(0, 155).trimEnd() + '…'
-          : 'Discover local secrets'
-      ),
-    },
-  ],
-})
-
-const loadData = async (slug: string) => {
-  if (!slug || slug === 'undefined') return
-
-  if (articleStore.getArticleBySlug(slug)) return
-
-  isLoading.value = true
-  error.value = null
-
-  try {
-    await articleStore.fetchArticleBySlug(slug)
-  } catch (err) {
-    console.error('Failed to load article:', err)
-    error.value = 'Failed to load this secret. Please try again.'
-  } finally {
-    isLoading.value = false
-  }
-}
-
-watch(currentSlug, (slug) => {
-  if (slug) loadData(slug)
-})
-
-onMounted(async () => {
-  await router.isReady()
-  loadData(currentSlug.value)
-})
-
-const goBack = () => {
-  if (window.history.length > 2) {
-    router.back()
-  } else {
-    router.push('/')
-  }
-}
-
-const formatDate = (dateString: string) => {
-  if (!dateString) return ''
+const formatDate = (dateString?: string) => {
+  if (!dateString) return new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   return new Date(dateString).toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'short',
