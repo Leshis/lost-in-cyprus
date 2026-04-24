@@ -1,30 +1,24 @@
 <template>
   <div class="map-content-area">
-    <!-- Debug overlay - remove when done -->
-    <div class="debug-overlay">
-      <div class="debug-log" v-for="(log, i) in debugLogs" :key="i" :class="log.type">
-        {{ log.msg }}
-      </div>
-      <button @click="debugLogs = []" class="debug-clear">Clear</button>
+    <div class="map-shadow-wrapper">
+      <svg
+        viewBox="0 0 700 400"
+        preserveAspectRatio="xMidYMid meet"
+        xmlns="http://www.w3.org/2000/svg"
+        class="map-svg"
+        @click.self="mapStore.setSelectedDistrict(null)"
+      >
+        <path
+          v-for="(pathData, id) in districts"
+          :key="id"
+          :id="id"
+          :d="pathData"
+          class="district"
+          :style="getPathStyle(id)"
+          @click="selectDistrictGuarded(id)"
+        />
+      </svg>
     </div>
-
-    <svg
-      viewBox="0 0 700 400"
-      preserveAspectRatio="xMidYMid meet"
-      xmlns="http://www.w3.org/2000/svg"
-      class="map-svg"
-      @click.self="mapStore.setSelectedDistrict(null)"
-    >
-      <path
-        v-for="(pathData, id) in districts"
-        :key="id"
-        :id="id"
-        :d="pathData"
-        class="district"
-        :style="getPathStyle(id)"
-        @click="selectDistrictGuarded(id)"
-      />
-    </svg>
   </div>
 </template>
 
@@ -166,10 +160,16 @@ const selectDistrictGuarded = (id) => {
   padding: 20px;
 }
 
-.map-svg {
+.map-shadow-wrapper {
   width: 100%;
   height: 100%;
   filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.3));
+}
+
+.map-svg {
+  width: 100%;
+  height: 100%;
+  /* NO filter here anymore */
 }
 
 .district {
