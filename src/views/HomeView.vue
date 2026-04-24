@@ -153,7 +153,6 @@ const handleAction = (loc) => {
   height: 100dvh;
   width: 100vw;
   background-color: #f8f6f0;
-  overflow: hidden;
 }
 
 .map-section {
