@@ -27,7 +27,7 @@ import { districts } from '@/data/districts';
 const mapStore = useMapStore();
 
 const COLORS = {
-  default: '#cbd5e1',
+  default: '#cbd5e1', 
   active: '#b57b52',
   dimmed: '#d1d5db',
 };
