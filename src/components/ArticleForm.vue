@@ -70,6 +70,21 @@
       </div>
     </div>
 
+<div class="form-row">
+  <div class="field">
+    <label>Go Live Date (Optional)</label>
+    <input type="datetime-local" v-model="form.scheduled_from" />
+    <p class="hint">Leave blank for instant publish</p>
+  </div>
+
+  <div class="field">
+    <label>Expiry Date (Optional)</label>
+    <input type="datetime-local" v-model="form.scheduled_to" />
+    <p class="hint">Leave blank to keep up forever</p>
+  </div>
+</div>
+
+
     <div class="field">
       <label for="article-content">Article Content</label>
       <textarea 
@@ -98,9 +113,9 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue';
+import { watch, ref, toRaw } from 'vue';
 
-// Define the interface to match your Supabase Article schema
+// 1. Updated Interface (Added our new DB columns)
 interface ArticleForm {
   title: string;
   slug: string;
@@ -109,24 +124,31 @@ interface ArticleForm {
   category: string;
   lat: number | null;
   long: number | null;
+  scheduled_from: string | null; // Added
+  scheduled_to: string | null;   // Added
 }
 
 const props = defineProps<{
   form: ArticleForm;
-  districts: string[]; // e.g. ['Nicosia', 'Limassol', 'Larnaca', 'Paphos', 'Famagusta', 'Kyrenia']
-  categories: string[]; // e.g. ['Beaches', 'History', 'Dining', 'Nature']
+  districts: string[];
+  categories: string[];
   uploading: boolean;
 }>();
 
+// 2. Local State: We "clone" the prop into a local ref for editing
+// This prevents the "Attempting to mutate prop" warning
+const localForm = ref({ ...props.form });
+
 const emit = defineEmits<{
-  (e: 'submit'): void;
+  (e: 'submit', data: ArticleForm): void;
   (e: 'file-change', event: Event): void;
 }>();
 
-// Slug Watcher: Converts "Nissi Beach Party" to "nissi-beach-party"
-watch(() => props.form.title, (newTitle) => {
+// 3. Smart Slug Watcher
+// We watch the LOCAL title, and update the LOCAL slug
+watch(() => localForm.value.title, (newTitle) => {
   if (newTitle) {
-    props.form.slug = newTitle
+    localForm.value.slug = newTitle
       .toLowerCase()
       .trim()
       .replace(/[^\w\s-]/g, '') 
@@ -134,7 +156,14 @@ watch(() => props.form.title, (newTitle) => {
       .replace(/^-+|-+$/g, ''); 
   }
 });
+
+// 4. Submit Handler
+const handleSubmit = () => {
+  // We send the local data back to the parent component
+  emit('submit', toRaw(localForm.value));
+};
 </script>
+
 
 <style scoped>
 .article-form {
