@@ -11,6 +11,10 @@ export interface ArticleFormFields {
   category: string
   lat: number | null
   long: number | null
+  // New scheduling fields
+  scheduled_from: string | null
+  scheduled_to: string | null
+  is_published: boolean
 }
 
 const EMPTY_FORM: ArticleFormFields = {
@@ -21,7 +25,12 @@ const EMPTY_FORM: ArticleFormFields = {
   category: '',
   lat: null,
   long: null,
+  // Initializing as null or empty string
+  scheduled_from: null,
+  scheduled_to: null,
+  is_published: true, // Default to true so you don't forget to check it
 }
+
 
 export function useArticleForm(onSuccess: () => Promise<void>) {
   const form = reactive<ArticleFormFields>({ ...EMPTY_FORM })
