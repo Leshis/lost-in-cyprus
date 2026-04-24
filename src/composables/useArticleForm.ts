@@ -11,6 +11,8 @@ export interface ArticleFormFields {
   category: string
   lat: number | null
   long: number | null
+  scheduled_from: string | null // was missing — never saved to DB
+  scheduled_to: string | null   // was missing — never saved to DB
 }
 
 const EMPTY_FORM: ArticleFormFields = {
@@ -21,6 +23,8 @@ const EMPTY_FORM: ArticleFormFields = {
   category: '',
   lat: null,
   long: null,
+  scheduled_from: null, // was missing
+  scheduled_to: null,   // was missing
 }
 
 export function useArticleForm(onSuccess: () => Promise<void>) {
@@ -48,6 +52,8 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
       category: article.category,
       lat: article.lat ?? null,
       long: article.long ?? null,
+      scheduled_from: article.scheduled_from ?? null, // carry through on edit
+      scheduled_to: article.scheduled_to ?? null,
     })
     editingId.value = article.id
     selectedFile.value = null
@@ -87,6 +93,12 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
         imagePath = fileName
       }
 
+      // Shared fields used in both insert and update
+      const scheduleFields = {
+        scheduled_from: form.scheduled_from || null,
+        scheduled_to: form.scheduled_to || null,
+      }
+
       if (editingId.value) {
         const { error } = await supabase
           .from('articles')
@@ -97,6 +109,7 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
             content: processedContent,
             category: form.category,
             location,
+            ...scheduleFields, // was missing
             ...(imagePath && { image_url: imagePath }),
           })
           .eq('id', editingId.value)
@@ -116,6 +129,7 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
             category: form.category,
             location,
             image_url: imagePath,
+            ...scheduleFields, // was missing
           }])
 
         if (error) throw error
