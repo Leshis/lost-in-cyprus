@@ -75,12 +75,13 @@ const selectDistrictGuarded = (id) => {
 <template>
   <div class="map-content-area">
     <svg
-      viewBox="0 0 700 400"
-      preserveAspectRatio="xMidYMid meet"
-      xmlns="http://www.w3.org/2000/svg"
-      class="map-svg"
-      @click.self="mapStore.setSelectedDistrict(null)"
-    >
+  :key="String(mapStore.selectedDistrict)"
+  viewBox="0 0 700 400"
+  preserveAspectRatio="xMidYMid meet"
+  xmlns="http://www.w3.org/2000/svg"
+  class="map-svg"
+  @click.self="mapStore.setSelectedDistrict(null)"
+>
       <path
         v-for="(pathData, id) in districts"
         :key="id"
