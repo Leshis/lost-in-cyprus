@@ -65,14 +65,11 @@ const handleNavigation = (target) => {
 .pill-navbar {
   position: absolute;
   top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90%;
+  left: 5%;          /* instead of left: 50% + transform */
+  right: 5%;         /* just use left/right margins */
   max-width: 400px;
-  background: white;
-  border-radius: 50px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  padding: 6px 8px 6px 18px;
+  margin: 0 auto;
+  /* remove transform entirely */
   z-index: 50;
 }
 
