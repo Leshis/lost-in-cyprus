@@ -14,6 +14,8 @@ export interface Article {
   created_at: string
   lat?: number
   long?: number
+  scheduled_from?: string | null // was missing from type
+  scheduled_to?: string | null   // was missing from type
 }
 
 export function useAdminArticles() {
@@ -35,11 +37,25 @@ export function useAdminArticles() {
   }
 
   const fetchEnums = async () => {
-    const { data: catData } = await supabase.rpc('get_enum_values', { type_name: 'category_type' })
-    if (catData) categories.value = processEnum(catData, ['hiking', 'food', 'culture', 'wine'])
+    const { data: catData, error: catError } = await supabase.rpc('get_enum_values', {
+      type_name: 'category_type',
+    })
+    if (catError) {
+      console.error('Failed to fetch categories:', catError.message) // was silently ignored
+    } else if (catData) {
+      categories.value = processEnum(catData, ['hiking', 'food', 'culture', 'wine'])
+    }
 
-    const { data: distData } = await supabase.rpc('get_enum_values', { type_name: 'district' })
-    if (distData) districts.value = processEnum(distData, ['limassol', 'paphos', 'nicosia', 'larnaca', 'kyrenia', 'famagusta'])
+    const { data: distData, error: distError } = await supabase.rpc('get_enum_values', {
+      type_name: 'district',
+    })
+    if (distError) {
+      console.error('Failed to fetch districts:', distError.message) // was silently ignored
+    } else if (distData) {
+      districts.value = processEnum(distData, [
+        'limassol', 'paphos', 'nicosia', 'larnaca', 'kyrenia', 'famagusta',
+      ])
+    }
   }
 
   onMounted(() => {
