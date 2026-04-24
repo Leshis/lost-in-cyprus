@@ -50,22 +50,29 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
   }
 
   const handleEdit = (article: Article) => {
+    // Extract coordinates from the "POINT(long lat)" string if necessary
+    let extractedLat = article.lat;
+    let extractedLong = article.long;
+
+    if (!extractedLat && article.location) {
+      const coords = article.location.match(/-?\d+\.\d+/g);
+      if (coords) {
+        extractedLong = parseFloat(coords[0]);
+        extractedLat = parseFloat(coords[1]);
+      }
+    }
+
     Object.assign(form, {
-      title: article.title,
-      slug: article.slug,
-      district: article.district,
-      content: article.content,
-      category: article.category,
-      lat: article.lat ?? null,
-      long: article.long ?? null,
-      // Format these so the HTML input doesn't reject them
+      ...article,
+      lat: extractedLat ?? null,
+      long: extractedLong ?? null,
+      // Fix for the date format error
       scheduled_from: formatForInput(article.scheduled_from),
       scheduled_to: formatForInput(article.scheduled_to),
-    })
-    editingId.value = article.id
-    selectedFile.value = null
-    statusMsg.value = ''
-  }
+    });
+
+    editingId.value = article.id;
+  };
 
   const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement
@@ -86,13 +93,11 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
       isError.value = false
 
       const processedContent = processContent(form.content)
-      // Ensure we only build a point if we actually have coordinates
       const location = (form.lat !== null && form.long !== null)
         ? buildPostgisPoint(form.lat, form.long)
         : null
 
       let imagePath: string | undefined
-
       if (selectedFile.value) {
         const ext = selectedFile.value.name.split('.').pop()
         const fileName = `${crypto.randomUUID()}.${ext}`
@@ -103,12 +108,6 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
         imagePath = fileName
       }
 
-      const scheduleFields = {
-        scheduled_from: form.scheduled_from || null,
-        scheduled_to: form.scheduled_to || null,
-      }
-
-      // DATA OBJECT for Supabase
       const articlePayload: any = {
         title: form.title,
         slug: form.slug,
@@ -116,37 +115,34 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
         content: processedContent,
         category: form.category,
         location,
-        ...scheduleFields,
+        scheduled_from: form.scheduled_from || null,
+        scheduled_to: form.scheduled_to || null,
       }
 
-      // Only add image_url if a new one was uploaded
-      if (imagePath) {
-        articlePayload.image_url = imagePath
-      }
+      if (imagePath) articlePayload.image_url = imagePath
 
       if (editingId.value) {
         const { error } = await supabase
           .from('articles')
           .update(articlePayload)
-          .eq('id', editingId.value)
-
+          .eq('id', editingId.value) // Correctly targets the row
         if (error) throw error
         statusMsg.value = 'Article updated successfully!'
       } else {
         if (!imagePath) throw new Error('Please select an image.')
-
         const { error } = await supabase
           .from('articles')
           .insert([articlePayload])
-
         if (error) throw error
         statusMsg.value = 'Article published successfully!'
       }
 
-      // Keep the success state visible for a moment before resetting
-      setTimeout(async () => {
+      // Refresh the table immediately
+      await onSuccess()
+
+      // Wait a moment so the user sees the "Success" message before the form clears
+      setTimeout(() => {
         resetForm()
-        await onSuccess()
       }, 1500)
 
     } catch (err) {

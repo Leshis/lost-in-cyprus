@@ -41,8 +41,9 @@ export const useArticleStore = defineStore('articles', {
   },
 
   actions: {
-    async fetchArticles() {
-      if (this.items.length > 0) return
+    // Remove the "if (this.items.length > 0) return" to allow manual refreshes
+    async fetchArticles(force = false) {
+      if (this.items.length > 0 && !force) return
 
       this.loading = true
       try {
@@ -52,9 +53,7 @@ export const useArticleStore = defineStore('articles', {
           .order('created_at', { ascending: false })
 
         if (error) throw error
-        if (data) {
-          this.items = data as Article[]
-        }
+        this.items = (data || []) as Article[]
       } catch (error) {
         console.error('Error fetching articles:', error)
       } finally {
@@ -62,41 +61,6 @@ export const useArticleStore = defineStore('articles', {
       }
     },
 
-    async fetchArticleById(id: string | number) {
-      this.loading = true;
-      const numericId = typeof id === 'string' ? parseInt(id, 10) : id;
-
-      try {
-        const { data, error } = await supabase
-          .from('article_details')
-          .select('*')
-          .eq('id', numericId)
-          .single();
-
-        if (error) throw error;
-
-        if (data) {
-          const typedData = data as Article;
-
-          // Look for the index of the existing item
-          const index = this.items.findIndex(item => item.id === numericId);
-
-          if (index !== -1) {
-            // If it exists, replace it (updates the data without duplicating)
-            this.items[index] = typedData;
-          } else {
-            // If it's new, add it
-            this.items.push(typedData);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching single article:', error);
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    // Inside your actions:
     async fetchArticleBySlug(slug: string) {
       this.loading = true
       try {
@@ -104,9 +68,10 @@ export const useArticleStore = defineStore('articles', {
           .from('article_details')
           .select('*')
           .eq('slug', slug)
-          .single()
+          .maybeSingle() // Fixes PGRST116 error
 
         if (error) throw error
+
         if (data) {
           const typedData = data as Article
           const index = this.items.findIndex(item => item.slug === slug)
