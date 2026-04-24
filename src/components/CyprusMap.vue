@@ -1,7 +1,28 @@
+<template>
+  <div class="map-content-area">
+    <svg
+      viewBox="0 0 700 400"
+      preserveAspectRatio="xMidYMid meet"
+      xmlns="http://www.w3.org/2000/svg"
+      class="map-svg"
+      @click.self="mapStore.setSelectedDistrict(null)"
+    >
+      <path
+        v-for="(pathData, id) in districts"
+        :key="id"
+        :id="id"
+        :d="pathData"
+        class="district"
+        :style="getPathStyle(id)"
+        @click="selectDistrictGuarded(id)"
+      />
+    </svg>
+  </div>
+</template>
+
 <script setup>
 import { useMapStore } from '@/stores/mapStore';
 import { districts } from '@/data/districts';
-import { watch } from 'vue';
 
 const mapStore = useMapStore();
 
@@ -11,42 +32,34 @@ const COLORS = {
   dimmed: '#d1d5db',
 };
 
-// Directly set SVG attributes — bypasses Vue rendering and GPU cache entirely
-const repaintAll = (selectedId) => {
-  Object.keys(districts).forEach((id) => {
-    const el = document.getElementById(id);
-    if (!el) return;
+const getPathStyle = (id) => {
+  const selected = mapStore.selectedDistrict;
 
-    if (!selectedId) {
-      el.setAttribute('fill', COLORS.default);
-      el.setAttribute('stroke', '#94a3b8');
-      el.setAttribute('stroke-width', '1');
-      el.setAttribute('opacity', '1');
-    } else if (id === selectedId) {
-      el.setAttribute('fill', COLORS.active);
-      el.setAttribute('stroke', '#8d5d3a');
-      el.setAttribute('stroke-width', '2.5');
-      el.setAttribute('opacity', '1');
-    } else {
-      el.setAttribute('fill', COLORS.dimmed);
-      el.setAttribute('stroke', 'rgba(148,163,184,0.5)');
-      el.setAttribute('stroke-width', '1');
-      el.setAttribute('opacity', '0.7');
-    }
-  });
-};
-
-watch(
-  () => mapStore.selectedDistrict,
-  (newVal) => {
-    // Double rAF forces browser to actually commit the repaint
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        repaintAll(newVal);
-      });
-    });
+  if (!selected) {
+    return {
+      fill: COLORS.default,
+      stroke: '#94a3b8',
+      strokeWidth: '1',
+      opacity: '1',
+    };
   }
-);
+
+  if (selected === id) {
+    return {
+      fill: COLORS.active,
+      stroke: '#8d5d3a',
+      strokeWidth: '2.5',
+      opacity: '1',
+    };
+  }
+
+  return {
+    fill: COLORS.dimmed,
+    stroke: 'rgba(148, 163, 184, 0.5)',
+    strokeWidth: '1',
+    opacity: '0.7',
+  };
+};
 
 let lastCallTime = 0;
 let lastCallId = null;
@@ -72,28 +85,6 @@ const selectDistrictGuarded = (id) => {
 };
 </script>
 
-<template>
-  <div class="map-content-area">
-    <svg
-  :key="String(mapStore.selectedDistrict)"
-  viewBox="0 0 700 400"
-  preserveAspectRatio="xMidYMid meet"
-  xmlns="http://www.w3.org/2000/svg"
-  class="map-svg"
-  @click.self="mapStore.setSelectedDistrict(null)"
->
-      <path
-        v-for="(pathData, id) in districts"
-        :key="id"
-        :id="id"
-        :d="pathData"
-        class="district"
-        @click="selectDistrictGuarded(id)"
-      />
-    </svg>
-  </div>
-</template>
-
 <style scoped>
 .map-content-area {
   width: 100%;
@@ -112,18 +103,19 @@ const selectDistrictGuarded = (id) => {
 }
 
 .district {
-  fill: #cbd5e1;
-  stroke: #94a3b8;
-  stroke-width: 1;
+  transition: fill 0.3s ease, opacity 0.3s ease, stroke-width 0.3s ease;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   outline: none;
-  /* No transition - instant update is more reliable on mobile */
+}
+
+.district:focus {
+  outline: none;
 }
 
 @media (hover: hover) {
   .district:hover {
-    fill: #b57b52;
+    fill: #b57b52 !important;
   }
 }
 </style>
