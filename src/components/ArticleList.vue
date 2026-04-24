@@ -34,7 +34,7 @@ defineEmits(['edit', 'delete']);
 const searchQuery = ref('');
 const filteredArticles = computed(() => {
   return props.articles.filter(a => 
-    a.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+    a.title?.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
 });
 </script>
