@@ -4,6 +4,7 @@ import js from '@eslint/js'
 import pluginVue from 'eslint-plugin-vue'
 import pluginOxlint from 'eslint-plugin-oxlint'
 import typescriptParser from '@typescript-eslint/parser'
+import typescriptPlugin from '@typescript-eslint/eslint-plugin'
 
 export default defineConfig([
   {
@@ -24,12 +25,25 @@ export default defineConfig([
   js.configs.recommended,
   ...pluginVue.configs['flat/essential'],
 
-  // Add this block
+  // 1. Config for standard .ts files
+  {
+    files: ['**/*.ts'],
+    languageOptions: {
+      parser: typescriptParser,
+      sourceType: 'module',
+    },
+    plugins: {
+      '@typescript-eslint': typescriptPlugin,
+    },
+  },
+
+  // 2. Config for .vue files (keep this as you had it)
   {
     files: ['**/*.vue'],
     languageOptions: {
+      parser: pluginVue.parser, // Use Vue parser as the primary
       parserOptions: {
-        parser: typescriptParser,
+        parser: typescriptParser, // Tell it to use TS for the <script> block
       },
     },
   },

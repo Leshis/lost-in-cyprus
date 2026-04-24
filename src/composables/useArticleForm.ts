@@ -1,7 +1,7 @@
 import { ref, reactive } from 'vue'
 import { supabase } from '@/supabase'
 import { processContent, buildPostgisPoint } from '@/utils/articleHelpers'
-import type { Article } from './useAdminArticles'
+import type { Article } from '@/composables/useAdminArticles'
 
 export interface ArticleFormFields {
   title: string
@@ -43,6 +43,12 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
     isError.value = false
   }
 
+  // Add 'undefined' to the allowed types here
+  const formatForInput = (dateString: string | null | undefined) => {
+    if (!dateString) return null
+    return dateString.slice(0, 16)
+  }
+
   const handleEdit = (article: Article) => {
     Object.assign(form, {
       title: article.title,
@@ -52,8 +58,9 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
       category: article.category,
       lat: article.lat ?? null,
       long: article.long ?? null,
-      scheduled_from: article.scheduled_from ?? null, // carry through on edit
-      scheduled_to: article.scheduled_to ?? null,
+      // Format these so the HTML input doesn't reject them
+      scheduled_from: formatForInput(article.scheduled_from),
+      scheduled_to: formatForInput(article.scheduled_to),
     })
     editingId.value = article.id
     selectedFile.value = null
@@ -79,7 +86,10 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
       isError.value = false
 
       const processedContent = processContent(form.content)
-      const location = buildPostgisPoint(form.lat, form.long)
+      // Ensure we only build a point if we actually have coordinates
+      const location = (form.lat !== null && form.long !== null)
+        ? buildPostgisPoint(form.lat, form.long)
+        : null
 
       let imagePath: string | undefined
 
@@ -93,25 +103,31 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
         imagePath = fileName
       }
 
-      // Shared fields used in both insert and update
       const scheduleFields = {
         scheduled_from: form.scheduled_from || null,
         scheduled_to: form.scheduled_to || null,
       }
 
+      // DATA OBJECT for Supabase
+      const articlePayload: any = {
+        title: form.title,
+        slug: form.slug,
+        district: form.district,
+        content: processedContent,
+        category: form.category,
+        location,
+        ...scheduleFields,
+      }
+
+      // Only add image_url if a new one was uploaded
+      if (imagePath) {
+        articlePayload.image_url = imagePath
+      }
+
       if (editingId.value) {
         const { error } = await supabase
           .from('articles')
-          .update({
-            title: form.title,
-            slug: form.slug,
-            district: form.district,
-            content: processedContent,
-            category: form.category,
-            location,
-            ...scheduleFields, // was missing
-            ...(imagePath && { image_url: imagePath }),
-          })
+          .update(articlePayload)
           .eq('id', editingId.value)
 
         if (error) throw error
@@ -121,23 +137,18 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
 
         const { error } = await supabase
           .from('articles')
-          .insert([{
-            title: form.title,
-            slug: form.slug,
-            district: form.district,
-            content: processedContent,
-            category: form.category,
-            location,
-            image_url: imagePath,
-            ...scheduleFields, // was missing
-          }])
+          .insert([articlePayload])
 
         if (error) throw error
         statusMsg.value = 'Article published successfully!'
       }
 
-      resetForm()
-      await onSuccess()
+      // Keep the success state visible for a moment before resetting
+      setTimeout(async () => {
+        resetForm()
+        await onSuccess()
+      }, 1500)
+
     } catch (err) {
       isError.value = true
       statusMsg.value = err instanceof Error ? err.message : 'An unexpected error occurred.'
