@@ -3,11 +3,19 @@
   <div class="map-content-area">
     <svg viewBox="0 0 700 400" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" class="map-svg"
       @click.self="mapStore.setSelectedDistrict(null)">
-      <path v-for="(pathData, id) in districts" :key="id" :id="id" :d="pathData" class="district"
-        :class="{ active: mapStore.selectedDistrict === id }" @click="selectDistrict(id)" />
+      <path
+  v-for="(pathData, id) in districts"
+  :key="id"
+  :id="id"
+  :d="pathData"
+  class="district"
+  :class="{ active: mapStore.selectedDistrict === id }"
+  @click="selectDistrictGuarded(id)"
+/>
     </svg>
   </div>
 </template>
+
 
 <script setup>
 import { useMapStore } from '@/stores/mapStore';
@@ -17,19 +25,71 @@ import { nextTick } from 'vue';
 const mapStore = useMapStore();
 
 const selectDistrict = (id) => {
-  if (mapStore.selectedDistrict === id) {
-    mapStore.setSelectedDistrict(null)
+  const before = mapStore.selectedDistrict;
+  const isSame = before === id;
+
+  console.log(`[MapSVG] selectDistrict called`, {
+    id,
+    before,
+    isSame,
+    timestamp: Date.now(),
+  });
+
+  if (isSame) {
+    console.log(`[MapSVG] → Deselecting: setSelectedDistrict(null)`);
+    mapStore.setSelectedDistrict(null);
+
     nextTick(() => {
-      document.getElementById(id)?.getBoundingClientRect()
-    })
+      const after = mapStore.selectedDistrict;
+      const el = document.getElementById(id);
+      const hasActiveClass = el?.classList.contains('active');
+
+      console.log(`[MapSVG] nextTick after deselect`, {
+        storeValue: after,
+        elementId: id,
+        hasActiveClass,
+        classList: el ? [...el.classList] : null,
+      });
+
+      if (hasActiveClass) {
+        console.warn(`[MapSVG] ⚠️ BUG DETECTED: element still has .active after deselect. Store is "${after}"`);
+      }
+    });
   } else {
-    mapStore.setSelectedDistrict(id)
+    console.log(`[MapSVG] → Selecting: setSelectedDistrict("${id}")`);
+    mapStore.setSelectedDistrict(id);
+
+    nextTick(() => {
+      console.log(`[MapSVG] nextTick after select`, {
+        storeValue: mapStore.selectedDistrict,
+      });
+    });
   }
 }
 
+// Detects ghost re-select after deselect (double event on mobile)
+let lastCallTime = 0;
+let lastCallId = null;
 
+const selectDistrictGuarded = (id) => {
+  const now = Date.now();
+  const timeSinceLast = now - lastCallTime;
 
+  if (lastCallId === id && timeSinceLast < 400) {
+    console.warn(`[MapSVG] 🚨 RAPID DOUBLE EVENT detected on "${id}" — ${timeSinceLast}ms apart. Likely touch bug, suppressing.`);
+    lastCallTime = now;
+    lastCallId = id;
+    return; // Suppress the ghost event
+  }
+
+  console.log(`[MapSVG] Event gap since last call: ${timeSinceLast}ms`);
+  lastCallTime = now;
+  lastCallId = id;
+  selectDistrict(id);
+}
 </script>
+    
+
 
 <style scoped>
 .map-content-area {
