@@ -18,7 +18,7 @@
           <td>{{ article.district }}</td>
           <td class="actions">
             <button @click="$emit('edit', article)" class="edit-btn">Edit</button>
-            <button @click="$emit('delete', article.id)" class="delete-btn">Delete</button>
+            <button @click="$emit('delete', article)" class="delete-btn">Delete</button>
           </td>
         </tr>
       </tbody>
