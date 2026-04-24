@@ -113,41 +113,32 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref, toRaw } from 'vue';
-
-// 1. Updated Interface (Added our new DB columns)
-interface ArticleForm {
-  title: string;
-  slug: string;
-  district: string;
-  content: string;
-  category: string;
-  lat: number | null;
-  long: number | null;
-  scheduled_from: string | null; // Added
-  scheduled_to: string | null;   // Added
-}
-
+// ArticleForm.vue
 const props = defineProps<{
-  form: ArticleForm;
+  form: ArticleForm; // This is what v-model:form provides
   districts: string[];
   categories: string[];
   uploading: boolean;
 }>();
 
-// 2. Local State: We "clone" the prop into a local ref for editing
-// This prevents the "Attempting to mutate prop" warning
-const localForm = ref({ ...props.form });
-
 const emit = defineEmits<{
-  (e: 'submit', data: ArticleForm): void;
+  (e: 'update:form', value: ArticleForm): void; // Required for v-model:form
+  (e: 'submit'): void;
   (e: 'file-change', event: Event): void;
 }>();
 
-// 3. Smart Slug Watcher
-// We watch the LOCAL title, and update the LOCAL slug
+// Use a computed property with a getter and setter for clean v-model support
+import { computed } from 'vue';
+
+const localForm = computed({
+  get: () => props.form,
+  set: (val) => emit('update:form', val)
+});
+
+// Update your slug watcher to use the computed value
 watch(() => localForm.value.title, (newTitle) => {
   if (newTitle) {
+    // We update the property directly; the setter handles the emit
     localForm.value.slug = newTitle
       .toLowerCase()
       .trim()
@@ -157,11 +148,6 @@ watch(() => localForm.value.title, (newTitle) => {
   }
 });
 
-// 4. Submit Handler
-const handleSubmit = () => {
-  // We send the local data back to the parent component
-  emit('submit', toRaw(localForm.value));
-};
 </script>
 
 
