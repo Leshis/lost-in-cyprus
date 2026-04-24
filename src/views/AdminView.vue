@@ -53,11 +53,12 @@
     </div>
 
     <ConfirmModal
-      :isOpen="isModalOpen"
-      :title="articleToDelete?.title || 'this article'"
-      @confirm="executeDelete"
-      @cancel="closeModal"
-    />
+  :isOpen="isModalOpen"
+  :title="articleToDelete?.title || 'this article'"
+  @confirm="executeDelete"
+  @cancel="closeModal"
+/>
+<p v-if="deleteError" class="status error">{{ deleteError }}</p>
   </div>
 </template>
 
@@ -90,7 +91,7 @@ const {
   resetForm, handleEdit, handleFileChange, handleFormError, uploadArticle,
 } = useArticleForm(fetchArticles)
 
-const { isModalOpen, articleToDelete, openDeleteModal, closeModal, executeDelete } =
+const { isModalOpen, articleToDelete, deleteError, openDeleteModal, closeModal, executeDelete } =
   useDeleteModal(articles)
 
 const switchToList = () => {
