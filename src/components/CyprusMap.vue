@@ -5,7 +5,6 @@
       preserveAspectRatio="xMidYMid meet"
       xmlns="http://www.w3.org/2000/svg"
       class="map-svg"
-      :class="{ 'has-selection': mapStore.selectedDistrict }"
       @click.self="mapStore.setSelectedDistrict(null)"
     >
       <path
@@ -14,7 +13,7 @@
         :id="id"
         :d="pathData"
         class="district"
-        :class="{ active: mapStore.selectedDistrict === id }"
+        :style="getPathStyle(id)"
         @click="selectDistrictGuarded(id)"
       />
     </svg>
@@ -24,18 +23,42 @@
 <script setup>
 import { useMapStore } from '@/stores/mapStore';
 import { districts } from '@/data/districts';
-import { nextTick } from 'vue';
 
 const mapStore = useMapStore();
 
-const selectDistrict = (id) => {
-  const isSame = mapStore.selectedDistrict === id;
+const COLORS = {
+  default: '#cbd5e1',
+  active: '#b57b52',
+  dimmed: '#d1d5db',
+};
 
-  if (isSame) {
-    mapStore.setSelectedDistrict(null);
-  } else {
-    mapStore.setSelectedDistrict(id);
+const getPathStyle = (id) => {
+  const selected = mapStore.selectedDistrict;
+
+  if (!selected) {
+    return {
+      fill: COLORS.default,
+      stroke: '#94a3b8',
+      strokeWidth: '1',
+      opacity: '1',
+    };
   }
+
+  if (selected === id) {
+    return {
+      fill: COLORS.active,
+      stroke: '#8d5d3a',
+      strokeWidth: '2.5',
+      opacity: '1',
+    };
+  }
+
+  return {
+    fill: COLORS.dimmed,
+    stroke: 'rgba(148, 163, 184, 0.5)',
+    strokeWidth: '1',
+    opacity: '0.7',
+  };
 };
 
 let lastCallTime = 0;
@@ -53,7 +76,12 @@ const selectDistrictGuarded = (id) => {
 
   lastCallTime = now;
   lastCallId = id;
-  selectDistrict(id);
+
+  if (mapStore.selectedDistrict === id) {
+    mapStore.setSelectedDistrict(null);
+  } else {
+    mapStore.setSelectedDistrict(id);
+  }
 };
 </script>
 
@@ -75,9 +103,6 @@ const selectDistrictGuarded = (id) => {
 }
 
 .district {
-  fill: #cbd5e1;
-  stroke: #94a3b8;
-  stroke-width: 1;
   transition: fill 0.3s ease, opacity 0.3s ease, stroke-width 0.3s ease;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -89,27 +114,8 @@ const selectDistrictGuarded = (id) => {
 }
 
 @media (hover: hover) {
-  .district:hover:not(.active) {
-    fill: #b57b52;
+  .district:hover {
+    fill: #b57b52 !important;
   }
-}
-
-.district.active {
-  fill: #b57b52;
-  stroke: #8d5d3a;
-  stroke-width: 2.5;
-  opacity: 1;
-}
-
-/* Replaced :has() with a direct parent class Vue controls */
-.map-svg.has-selection .district:not(.active) {
-  opacity: 0.7;
-  fill: #d1d5db;
-  stroke: rgba(148, 163, 184, 0.5);
-}
-
-.map-svg:not(.has-selection) .district {
-  fill: #cbd5e1;
-  opacity: 1;
 }
 </style>
