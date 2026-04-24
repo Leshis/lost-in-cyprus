@@ -2,49 +2,27 @@
   <form @submit.prevent="$emit('submit')" class="article-form">
     <div class="field">
       <label for="article-title">Article Title</label>
-      <input 
-        id="article-title"
-        v-model="localForm.title" 
-        type="text" 
-        placeholder="e.g. Hidden Gems of the Akamas Peninsula"
-        required 
-      />
+      <input id="article-title" v-model="localForm.title" type="text"
+        placeholder="e.g. Hidden Gems of the Akamas Peninsula" required />
     </div>
 
     <div class="field">
       <label for="article-slug">URL Slug</label>
-      <input 
-        id="article-slug"
-        v-model="localForm.slug" 
-        type="text" 
-        placeholder="hidden-gems-akamas-peninsula"
-        required 
-      />
+      <input id="article-slug" v-model="localForm.slug" type="text" placeholder="hidden-gems-akamas-peninsula"
+        required />
       <span class="hint">The unique URL path (e.g., cyprusguide.com/articles/slug-name)</span>
     </div>
 
     <div class="form-row">
       <div class="field">
         <label for="article-lat">Latitude</label>
-        <input 
-          id="article-lat"
-          v-model.number="localForm.lat" 
-          type="number" 
-          step="any" 
-          placeholder="34.9823 (e.g. Paphos)" 
-          required 
-        />
+        <input id="article-lat" v-model.number="localForm.lat" type="number" step="any"
+          placeholder="34.9823 (e.g. Paphos)" required />
       </div>
       <div class="field">
         <label for="article-long">Longitude</label>
-        <input 
-          id="article-long"
-          v-model.number="localForm.long" 
-          type="number" 
-          step="any" 
-          placeholder="32.3382" 
-          required 
-        />
+        <input id="article-long" v-model.number="localForm.long" type="number" step="any" placeholder="32.3382"
+          required />
       </div>
     </div>
 
@@ -86,13 +64,8 @@
 
     <div class="field">
       <label for="article-content">Article Content</label>
-      <textarea 
-        id="article-content" 
-        v-model="localForm.content" 
-        rows="10" 
-        placeholder="Describe the atmosphere, the food, or how to get there..."
-        required
-      ></textarea>
+      <textarea id="article-content" v-model="localForm.content" rows="10"
+        placeholder="Describe the atmosphere, the food, or how to get there..." required></textarea>
     </div>
 
     <div class="field">
@@ -100,41 +73,51 @@
         Featured Image (Beaches, Tavernas, etc.)
         <span v-if="requireImage" class="required-star">*</span>
       </label>
-      <input 
-        id="article-image" 
-        type="file" 
-        accept="image/*" 
-        :required="requireImage"
-        @change="$emit('file-change', $event)" 
-      />
+      <input id="article-image" type="file" accept="image/*" :required="requireImage"
+        @change="$emit('file-change', $event)" />
     </div>
 
-    <button type="submit" :disabled="uploading" class="submit-btn">
-      {{ uploading ? 'Uploading to Guide...' : 'Publish to Cyprus Guide' }}
-    </button>
+    <div class="actions">
+      <button type="submit" :disabled="uploading" class="submit-btn">
+        {{ submitButtonText }}
+      </button>
+
+      <button v-if="mode === 'edit'" type="button" @click="$emit('unpublish')" class="unpublish-btn"
+        :disabled="uploading">
+        Unpublish Article
+      </button>
+    </div>
   </form>
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue' // watch was missing — caused a runtime error
-import type { ArticleFormFields } from '@/composables/useArticleForm'
+import { computed, watch } from 'vue'
+import type { ArticleFormFields } from '../composables/useArticleForm'
 
 const props = defineProps<{
   form: ArticleFormFields
   districts: string[]
   categories: string[]
   uploading: boolean
-  requireImage: boolean // was declared in AdminView but missing here
+  requireImage: boolean
+  // New prop to determine state
+  mode: 'create' | 'edit'
 }>()
 
 const emit = defineEmits<{
-  (e: 'update:form', value: ArticleFormFields): void
-  (e: 'submit'): void
-  (e: 'file-change', event: Event): void
-  (e: 'error', message: string): void // was used in AdminView but missing here
+  'update:form': [value: ArticleFormFields]
+  'submit': []
+  'unpublish': []
+  'file-change': [event: Event]
+  'error': [message: string]
 }>()
 
-// Single computed that proxies the whole form object through v-model
+// Dynamic button text based on mode and status
+const submitButtonText = computed(() => {
+  if (props.uploading) return 'Saving changes...'
+  return props.mode === 'edit' ? 'Update Article' : 'Publish to Cyprus Guide'
+})
+
 const localForm = computed({
   get: () => props.form,
   set: (val) => emit('update:form', val),
@@ -143,8 +126,8 @@ const localForm = computed({
 watch(
   () => localForm.value.title,
   (newTitle) => {
-    if (newTitle) {
-      // Emit a full new object so the setter fires properly
+    // Only auto-generate slug if we are in 'create' mode
+    if (newTitle && props.mode === 'create') {
       emit('update:form', {
         ...props.form,
         slug: newTitle
@@ -191,7 +174,9 @@ label {
   margin-left: 2px;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   padding: 0.9rem;
   width: 100%;
   border: 2px solid #edf2f7;
@@ -202,7 +187,9 @@ input, select, textarea {
   box-sizing: border-box;
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
   outline: none;
   border-color: #b57b52;
   background: #fff;
@@ -233,6 +220,32 @@ input:focus, select:focus, textarea:focus {
 
 .submit-btn:disabled {
   background: #cbd5e0;
+  cursor: not-allowed;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.unpublish-btn {
+  background: transparent;
+  color: #c62828;
+  border: 2px solid #c62828;
+  padding: 1.2rem;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.unpublish-btn:hover:not(:disabled) {
+  background: #fff5f5;
+}
+
+.unpublish-btn:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
 }
 

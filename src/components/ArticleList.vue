@@ -38,21 +38,24 @@ const props = defineProps<{
 }>()
 
 defineEmits<{
-  (e: 'edit', article: Article): void
-  (e: 'delete', id: string): void
+  'edit': [article: Article]
+  'delete': [id: string]
 }>()
 
 const searchQuery = ref('')
 
 const filteredArticles = computed(() =>
   props.articles.filter(a =>
-    a.title?.toLowerCase().includes(searchQuery.value.toLowerCase()) // null-safe
+    a.title?.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 )
 </script>
 
 <style scoped>
-.search-bar { margin-bottom: 1.5rem; }
+.search-bar {
+  margin-bottom: 1.5rem;
+}
+
 .search-bar input {
   width: 100%;
   padding: 0.8rem;
@@ -60,27 +63,58 @@ const filteredArticles = computed(() =>
   border-radius: 8px;
   box-sizing: border-box;
 }
+
 .articles-table {
   width: 100%;
   border-collapse: collapse;
 }
+
 .articles-table th {
   text-align: left;
   padding: 1rem;
   border-bottom: 2px solid #eee;
   background: #fdfcf8;
 }
+
 .articles-table td {
   padding: 1rem;
   border-bottom: 1px solid #eee;
+
+  .articles-table td:first-child {
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
+
 .empty-state {
   text-align: center;
   color: #999;
   font-style: italic;
   padding: 2rem;
 }
-.actions { display: flex; gap: 0.5rem; }
-.edit-btn { background: #e3f2fd; color: #1976d2; padding: 0.4rem 0.8rem; border: none; border-radius: 4px; cursor: pointer; }
-.delete-btn { background: #ffebee; color: #c62828; padding: 0.4rem 0.8rem; border: none; border-radius: 4px; cursor: pointer; }
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-btn {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-btn {
+  background: #ffebee;
+  color: #c62828;
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
 </style>

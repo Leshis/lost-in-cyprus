@@ -28,6 +28,7 @@
 
         <ArticleForm
           v-model:form="form"
+          :mode="editingId ? 'edit' : 'create'"
           :districts="districts"
           :categories="categories"
           :uploading="uploading"
