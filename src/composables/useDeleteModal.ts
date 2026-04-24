@@ -5,15 +5,18 @@ import type { Article } from './useAdminArticles'
 export function useDeleteModal(articles: import('vue').Ref<Article[]>) {
   const isModalOpen = ref(false)
   const articleToDelete = ref<Article | null>(null)
+  const deleteError = ref<string | null>(null) // was missing — failures were silent
 
   const openDeleteModal = (id: string) => {
     articleToDelete.value = articles.value.find(a => a.id === id) ?? null
+    deleteError.value = null
     isModalOpen.value = true
   }
 
   const closeModal = () => {
     isModalOpen.value = false
     articleToDelete.value = null
+    deleteError.value = null
   }
 
   const executeDelete = async () => {
@@ -24,12 +27,13 @@ export function useDeleteModal(articles: import('vue').Ref<Article[]>) {
 
     if (error) {
       console.error('Delete failed:', error.message)
-    } else {
-      articles.value = articles.value.filter(a => a.id !== id)
+      deleteError.value = 'Failed to delete article. Please try again.' // surface to UI
+      return // don't close modal — let user see the error
     }
 
+    articles.value = articles.value.filter(a => a.id !== id)
     closeModal()
   }
 
-  return { isModalOpen, articleToDelete, openDeleteModal, closeModal, executeDelete }
+  return { isModalOpen, articleToDelete, deleteError, openDeleteModal, closeModal, executeDelete }
 }
