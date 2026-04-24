@@ -4,7 +4,7 @@
       <label for="article-title">Article Title</label>
       <input 
         id="article-title"
-        v-model="form.title" 
+        v-model="localForm.title" 
         type="text" 
         placeholder="e.g. Hidden Gems of the Akamas Peninsula"
         required 
@@ -15,7 +15,7 @@
       <label for="article-slug">URL Slug</label>
       <input 
         id="article-slug"
-        v-model="form.slug" 
+        v-model="localForm.slug" 
         type="text" 
         placeholder="hidden-gems-akamas-peninsula"
         required 
@@ -28,7 +28,7 @@
         <label for="article-lat">Latitude</label>
         <input 
           id="article-lat"
-          v-model.number="form.lat" 
+          v-model.number="localForm.lat" 
           type="number" 
           step="any" 
           placeholder="34.9823 (e.g. Paphos)" 
@@ -39,7 +39,7 @@
         <label for="article-long">Longitude</label>
         <input 
           id="article-long"
-          v-model.number="form.long" 
+          v-model.number="localForm.long" 
           type="number" 
           step="any" 
           placeholder="32.3382" 
@@ -51,7 +51,7 @@
     <div class="form-row">
       <div class="field">
         <label for="article-district">Cyprus District</label>
-        <select id="article-district" v-model="form.district" required>
+        <select id="article-district" v-model="localForm.district" required>
           <option value="" disabled>Select a district</option>
           <option v-for="dist in districts" :key="dist" :value="dist">
             {{ dist }}
@@ -61,7 +61,7 @@
 
       <div class="field">
         <label for="article-category">Travel Category</label>
-        <select id="article-category" v-model="form.category" required>
+        <select id="article-category" v-model="localForm.category" required>
           <option value="" disabled>Select a category</option>
           <option v-for="cat in categories" :key="cat" :value="cat">
             {{ cat }}
@@ -70,26 +70,25 @@
       </div>
     </div>
 
-<div class="form-row">
-  <div class="field">
-    <label>Go Live Date (Optional)</label>
-    <input type="datetime-local" v-model="form.scheduled_from" />
-    <p class="hint">Leave blank for instant publish</p>
-  </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Go Live Date (Optional)</label>
+        <input type="datetime-local" v-model="localForm.scheduled_from" />
+        <p class="hint">Leave blank for instant publish</p>
+      </div>
 
-  <div class="field">
-    <label>Expiry Date (Optional)</label>
-    <input type="datetime-local" v-model="form.scheduled_to" />
-    <p class="hint">Leave blank to keep up forever</p>
-  </div>
-</div>
-
+      <div class="field">
+        <label>Expiry Date (Optional)</label>
+        <input type="datetime-local" v-model="localForm.scheduled_to" />
+        <p class="hint">Leave blank to keep up forever</p>
+      </div>
+    </div>
 
     <div class="field">
       <label for="article-content">Article Content</label>
       <textarea 
         id="article-content" 
-        v-model="form.content" 
+        v-model="localForm.content" 
         rows="10" 
         placeholder="Describe the atmosphere, the food, or how to get there..."
         required
@@ -97,11 +96,15 @@
     </div>
 
     <div class="field">
-      <label for="article-image">Featured Image (Beaches, Tavernas, etc.)</label>
+      <label for="article-image">
+        Featured Image (Beaches, Tavernas, etc.)
+        <span v-if="requireImage" class="required-star">*</span>
+      </label>
       <input 
         id="article-image" 
         type="file" 
         accept="image/*" 
+        :required="requireImage"
         @change="$emit('file-change', $event)" 
       />
     </div>
@@ -113,43 +116,48 @@
 </template>
 
 <script setup lang="ts">
-// ArticleForm.vue
+import { computed, watch } from 'vue' // watch was missing — caused a runtime error
+import type { ArticleFormFields } from '@/composables/useArticleForm'
+
 const props = defineProps<{
-  form: ArticleForm; // This is what v-model:form provides
-  districts: string[];
-  categories: string[];
-  uploading: boolean;
-}>();
+  form: ArticleFormFields
+  districts: string[]
+  categories: string[]
+  uploading: boolean
+  requireImage: boolean // was declared in AdminView but missing here
+}>()
 
 const emit = defineEmits<{
-  (e: 'update:form', value: ArticleForm): void; // Required for v-model:form
-  (e: 'submit'): void;
-  (e: 'file-change', event: Event): void;
-}>();
+  (e: 'update:form', value: ArticleFormFields): void
+  (e: 'submit'): void
+  (e: 'file-change', event: Event): void
+  (e: 'error', message: string): void // was used in AdminView but missing here
+}>()
 
-// Use a computed property with a getter and setter for clean v-model support
-import { computed } from 'vue';
-
+// Single computed that proxies the whole form object through v-model
 const localForm = computed({
   get: () => props.form,
-  set: (val) => emit('update:form', val)
-});
+  set: (val) => emit('update:form', val),
+})
 
-// Update your slug watcher to use the computed value
-watch(() => localForm.value.title, (newTitle) => {
-  if (newTitle) {
-    // We update the property directly; the setter handles the emit
-    localForm.value.slug = newTitle
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, '') 
-      .replace(/[\s_-]+/g, '-') 
-      .replace(/^-+|-+$/g, ''); 
+watch(
+  () => localForm.value.title,
+  (newTitle) => {
+    if (newTitle) {
+      // Emit a full new object so the setter fires properly
+      emit('update:form', {
+        ...props.form,
+        slug: newTitle
+          .toLowerCase()
+          .trim()
+          .replace(/[^\w\s-]/g, '')
+          .replace(/[\s_-]+/g, '-')
+          .replace(/^-+|-+$/g, ''),
+      })
+    }
   }
-});
-
+)
 </script>
-
 
 <style scoped>
 .article-form {
@@ -174,8 +182,13 @@ label {
   font-weight: 700;
   font-size: 0.8rem;
   text-transform: uppercase;
-  color: #2c3e50; /* Deep blue/grey for a professional look */
+  color: #2c3e50;
   letter-spacing: 0.03em;
+}
+
+.required-star {
+  color: #c62828;
+  margin-left: 2px;
 }
 
 input, select, textarea {
@@ -186,11 +199,12 @@ input, select, textarea {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
   transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
 }
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: #b57b52; /* Your primary brand color */
+  border-color: #b57b52;
   background: #fff;
 }
 
