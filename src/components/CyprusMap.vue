@@ -1,21 +1,12 @@
-
 <template>
   <div class="map-content-area">
     <svg viewBox="0 0 700 400" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" class="map-svg"
       @click.self="mapStore.setSelectedDistrict(null)">
-      <path
-  v-for="(pathData, id) in districts"
-  :key="id"
-  :id="id"
-  :d="pathData"
-  class="district"
-  :class="{ active: mapStore.selectedDistrict === id }"
-  @click="selectDistrictGuarded(id)"
-/>
+      <path v-for="(pathData, id) in districts" :key="id" :id="id" :d="pathData" class="district"
+        :class="{ active: mapStore.selectedDistrict === id }" @click="selectDistrictGuarded(id)" />
     </svg>
   </div>
 </template>
-
 
 <script setup>
 import { useMapStore } from '@/stores/mapStore';
@@ -54,6 +45,15 @@ const selectDistrict = (id) => {
       if (hasActiveClass) {
         console.warn(`[MapSVG] ⚠️ BUG DETECTED: element still has .active after deselect. Store is "${after}"`);
       }
+
+      // Force browser to repaint the SVG on mobile
+      const svgEl = document.querySelector('.map-svg');
+      if (svgEl) {
+        svgEl.style.display = 'none';
+        requestAnimationFrame(() => {
+          svgEl.style.display = '';
+        });
+      }
     });
   } else {
     console.log(`[MapSVG] → Selecting: setSelectedDistrict("${id}")`);
@@ -65,9 +65,8 @@ const selectDistrict = (id) => {
       });
     });
   }
-}
+};
 
-// Detects ghost re-select after deselect (double event on mobile)
 let lastCallTime = 0;
 let lastCallId = null;
 
@@ -76,17 +75,17 @@ const selectDistrictGuarded = (id) => {
   const timeSinceLast = now - lastCallTime;
 
   if (lastCallId === id && timeSinceLast < 400) {
-    console.warn(`[MapSVG] 🚨 RAPID DOUBLE EVENT detected on "${id}" — ${timeSinceLast}ms apart. Likely touch bug, suppressing.`);
+    console.warn(`[MapSVG] 🚨 RAPID DOUBLE EVENT detected on "${id}" — ${timeSinceLast}ms apart. Suppressing.`);
     lastCallTime = now;
     lastCallId = id;
-    return; // Suppress the ghost event
+    return;
   }
 
   console.log(`[MapSVG] Event gap since last call: ${timeSinceLast}ms`);
   lastCallTime = now;
   lastCallId = id;
   selectDistrict(id);
-}
+};
 </script>
     
 
@@ -113,7 +112,6 @@ const selectDistrictGuarded = (id) => {
   stroke: #94a3b8;
   stroke-width: 1;
   filter: none;
-  will-change: fill, opacity, stroke-width; 
   transition: fill 0.3s ease, opacity 0.3s ease, stroke-width 0.3s ease;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
