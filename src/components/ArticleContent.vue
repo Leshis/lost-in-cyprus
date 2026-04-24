@@ -65,7 +65,7 @@ const formatDate = (dateString?: string) => {
 }
 
 .article-hero {
-  height: 40dvh;
+  height: 40svh;
   position: relative;
   display: flex;
   align-items: flex-end;
