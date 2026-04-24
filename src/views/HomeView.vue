@@ -162,11 +162,8 @@ const handleAction = (loc) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  z-index: 1;
   padding: 0;
   min-height: 300px;
-  overflow: hidden;
   box-shadow: inset 0 0 40px rgba(0,0,0,0.03);
 }
 
@@ -177,9 +174,7 @@ const handleAction = (loc) => {
   padding: 16px;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
-  margin-top: -20px; /* The "overlap" effect from your CodePen */
-  position: relative;
-  z-index: 10;
+  margin-top: -20px; 
   box-shadow: 0 -5px 15px rgba(0,0,0,0.08);
 }
 
