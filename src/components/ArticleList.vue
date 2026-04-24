@@ -3,7 +3,7 @@
     <div class="search-bar">
       <input type="text" placeholder="Search articles by title..." v-model="searchQuery" />
     </div>
-    
+
     <table class="articles-table">
       <thead>
         <tr>
@@ -13,12 +13,15 @@
         </tr>
       </thead>
       <tbody>
+        <tr v-if="filteredArticles.length === 0">
+          <td colspan="3" class="empty-state">No articles found.</td>
+        </tr>
         <tr v-for="article in filteredArticles" :key="article.id">
           <td>{{ article.title }}</td>
           <td>{{ article.district }}</td>
           <td class="actions">
             <button @click="$emit('edit', article)" class="edit-btn">Edit</button>
-            <button @click="$emit('delete', article)" class="delete-btn">Delete</button>
+            <button @click="$emit('delete', article.id)" class="delete-btn">Delete</button>
           </td>
         </tr>
       </tbody>
@@ -26,17 +29,26 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed } from 'vue';
-const props = defineProps(['articles']);
-defineEmits(['edit', 'delete']);
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import type { Article } from '@/composables/useAdminArticles'
 
-const searchQuery = ref('');
-const filteredArticles = computed(() => {
-  return props.articles.filter(a => 
-    a.title?.toLowerCase().includes(searchQuery.value.toLowerCase())
-  );
-});
+const props = defineProps<{
+  articles: Article[]
+}>()
+
+defineEmits<{
+  (e: 'edit', article: Article): void
+  (e: 'delete', id: string): void
+}>()
+
+const searchQuery = ref('')
+
+const filteredArticles = computed(() =>
+  props.articles.filter(a =>
+    a.title?.toLowerCase().includes(searchQuery.value.toLowerCase()) // null-safe
+  )
+)
 </script>
 
 <style scoped>
@@ -46,6 +58,7 @@ const filteredArticles = computed(() => {
   padding: 0.8rem;
   border: 1px solid #ddd;
   border-radius: 8px;
+  box-sizing: border-box;
 }
 .articles-table {
   width: 100%;
@@ -60,6 +73,12 @@ const filteredArticles = computed(() => {
 .articles-table td {
   padding: 1rem;
   border-bottom: 1px solid #eee;
+}
+.empty-state {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  padding: 2rem;
 }
 .actions { display: flex; gap: 0.5rem; }
 .edit-btn { background: #e3f2fd; color: #1976d2; padding: 0.4rem 0.8rem; border: none; border-radius: 4px; cursor: pointer; }
