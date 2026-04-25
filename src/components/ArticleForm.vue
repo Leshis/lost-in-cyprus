@@ -115,9 +115,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, watch, ref } from 'vue'
 import type { ArticleFormFields } from '../composables/useArticleForm'
 import RichTextEditor from './RichTextEditor.vue'
+
+const showDebug = ref(false)
 
 const props = defineProps<{
   form: ArticleFormFields
