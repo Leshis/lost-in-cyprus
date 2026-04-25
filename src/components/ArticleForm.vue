@@ -64,7 +64,10 @@
 
     <div class="field">
   <label>Article Content</label>
-  <RichTextEditor v-model="localForm.content" />
+  <RichTextEditor
+  :modelValue="localForm.content"
+  @update:modelValue="val => emit('update:form', { ...props.form, content: val })"
+/>
 </div>
 
     <div class="field">
