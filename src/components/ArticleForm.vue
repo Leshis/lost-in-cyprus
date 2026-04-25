@@ -63,10 +63,9 @@
     </div>
 
     <div class="field">
-      <label for="article-content">Article Content</label>
-      <textarea id="article-content" v-model="localForm.content" rows="10"
-        placeholder="Describe the atmosphere, the food, or how to get there..." required></textarea>
-    </div>
+  <label>Article Content</label>
+  <RichTextEditor v-model="localForm.content" />
+</div>
 
     <div class="field">
       <label for="article-image">
@@ -93,6 +92,7 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 import type { ArticleFormFields } from '../composables/useArticleForm'
+import RichTextEditor from './RichTextEditor.vue'
 
 const props = defineProps<{
   form: ArticleFormFields
