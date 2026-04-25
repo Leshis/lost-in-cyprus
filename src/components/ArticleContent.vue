@@ -33,7 +33,7 @@
         <span class="date">{{ formatDate(article.created_at) }}</span>
       </div>
 
-      <div class="content-text">{{ article.content || 'Start writing your secret...' }}</div>
+      <div class="content-text" v-html="article.content"></div>
     </main>
   </div>
 </template>
