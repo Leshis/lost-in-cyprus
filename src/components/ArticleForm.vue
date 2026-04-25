@@ -89,6 +89,28 @@
         Unpublish Article
       </button>
     </div>
+
+<!-- Add just before closing </form> tag -->
+<div style="position:fixed;bottom:20px;right:20px;z-index:9999">
+  <button
+    type="button"
+    @click="showDebug = !showDebug"
+    style="background:#c8a96e;border:none;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer"
+  >
+    🐛 Debug
+  </button>
+  <div
+    v-if="showDebug"
+    style="position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;overflow:auto;padding:24px"
+  >
+    <button
+      type="button"
+      @click="showDebug = false"
+      style="position:fixed;top:16px;right:16px;background:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer"
+    >✕</button>
+    <pre style="color:#c8a96e;font-size:13px;white-space:pre-wrap;word-break:break-all;margin-top:40px">{{ localForm.content || 'EMPTY — nothing bound!' }}</pre>
+  </div>
+</div>
   </form>
 </template>
 
