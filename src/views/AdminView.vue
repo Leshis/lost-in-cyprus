@@ -27,16 +27,17 @@
         </p>
 
         <ArticleForm
-          v-model:form="form"
-          :mode="editingId ? 'edit' : 'create'"
-          :districts="districts"
-          :categories="categories"
-          :uploading="uploading"
-          :require-image="!editingId"
-          @submit="uploadArticle"
-          @file-change="handleFileChange"
-          @error="handleFormError"
-        />
+  v-model:form="form"
+  :mode="editingId ? 'edit' : 'create'"
+  :districts="districts"
+  :categories="categories"
+  :uploading="uploading"
+  :require-image="!editingId"
+  @submit="uploadArticle(true)"
+  @save-draft="uploadArticle(false)"
+  @file-change="handleFileChange"
+  @error="handleFormError"
+/>
 
         <p v-if="statusMsg" :class="['status', isError ? 'error' : 'success']">
           {{ statusMsg }}
