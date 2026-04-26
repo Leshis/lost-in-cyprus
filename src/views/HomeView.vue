@@ -116,10 +116,11 @@ const activeDistrictName = computed(() => {
     : 'Cyprus';
 });
 
+
 const stripHtml = (html) => {
   const div = document.createElement('div')
   div.innerHTML = html
-  return div.innerText
+  return div.innerText.replace(/\n+/g, ' ').trim()
 }
 
 // UPDATED: Filters directly from the Pinia Store instead of mock data
