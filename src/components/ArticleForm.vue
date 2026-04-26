@@ -77,15 +77,27 @@
     </div>
 
     <div class="actions">
-      <button type="submit" :disabled="uploading" class="submit-btn">
-        {{ submitButtonText }}
-      </button>
+  <button
+    type="button"
+    :disabled="uploading"
+    class="draft-btn"
+    @click="$emit('save-draft')"
+  >
+    {{ uploading ? 'Saving...' : 'Save Draft' }}
+  </button>
 
-      <button v-if="mode === 'edit'" type="button" @click="$emit('unpublish')" class="unpublish-btn"
-        :disabled="uploading">
-        Unpublish Article
-      </button>
-    </div>
+  <button
+    type="submit"
+    :disabled="uploading"
+    class="submit-btn"
+  >
+    {{ uploading ? 'Publishing...' : mode === 'edit' ? 'Update Article' : 'Publish to Cyprus Guide' }}
+  </button>
+
+  <button v-if="mode === 'edit'" type="button" @click="$emit('unpublish')" class="unpublish-btn" :disabled="uploading">
+    Unpublish Article
+  </button>
+</div>
 
 <!-- Add just before closing </form> tag -->
 <div style="position:fixed;bottom:20px;right:20px;z-index:9999">
