@@ -1,6 +1,6 @@
 import { ref, reactive } from 'vue'
 import { supabase } from '@/supabase'
-import { processContent } from '@/utils/articleHelpers'
+import { processEnum, buildPostgisPoint } from '@/utils/articleHelpers'
 import type { Article } from '@/composables/useAdminArticles'
 
 export interface ArticleFormFields {
@@ -89,8 +89,6 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
       statusMsg.value = 'Saving...'
       isError.value = false
 
-      const processedContent = processContent(form.content)
-
       let imagePath: string | undefined
       if (selectedFile.value) {
         const ext = selectedFile.value.name.split('.').pop()
@@ -106,7 +104,7 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
         title: form.title,
         slug: form.slug,
         district: form.district,
-        content: processedContent,
+        content: form.content,
         category: form.category,
         lat: form.lat,
         long: form.long,
