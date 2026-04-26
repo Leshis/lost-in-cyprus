@@ -43,7 +43,7 @@
             <span class="category-tag">{{ loc.category }}</span>
             <h4>{{ loc.title }}</h4>
             
-            <p>{{ loc.content ? loc.content.substring(0, 80) + '...' : '' }}</p>
+            <p v-html="loc.content ? stripHtml(loc.content).substring(0, 80) + '...' : ''"></p>
             
             <div class="card-footer">
               <small style="text-transform: capitalize;">{{ loc.district }}</small>
@@ -115,6 +115,12 @@ const activeDistrictName = computed(() => {
     ? mapStore.selectedDistrict.charAt(0).toUpperCase() + mapStore.selectedDistrict.slice(1)
     : 'Cyprus';
 });
+
+const stripHtml = (html: string): string => {
+  const div = document.createElement('div')
+  div.innerHTML = html
+  return div.innerText
+}
 
 // UPDATED: Filters directly from the Pinia Store instead of mock data
 const filteredLocations = computed(() => {
