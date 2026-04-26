@@ -146,6 +146,7 @@ const emit = defineEmits<{
   'unpublish': []
   'file-change': [event: Event]
   'error': [message: string]
+  'save-draft': []
 }>()
 
 // Dynamic button text based on mode and status
