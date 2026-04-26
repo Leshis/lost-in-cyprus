@@ -116,7 +116,7 @@ const activeDistrictName = computed(() => {
     : 'Cyprus';
 });
 
-const stripHtml = (html: string): string => {
+const stripHtml = (html) => {
   const div = document.createElement('div')
   div.innerHTML = html
   return div.innerText
