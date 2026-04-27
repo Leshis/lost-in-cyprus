@@ -88,7 +88,7 @@ function resolveStatus(article: Article): ArticleStatus {
   const from = article.scheduled_from ? new Date(article.scheduled_from) : null
   const to   = article.scheduled_to   ? new Date(article.scheduled_to)   : null
 
-  if (!article.published) return 'draft'
+  if (!article.is_published) return 'draft'
   if (to && now > to)     return 'expired'
   if (from && now < from) return 'scheduled'
   return 'published'
