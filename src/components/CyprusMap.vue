@@ -1,7 +1,8 @@
 <template>
   <div class="map-content-area">
     <svg
-      viewBox="0 0 700 400"
+      ref="svgEl"
+      :viewBox="viewBox"
       preserveAspectRatio="xMidYMid meet"
       xmlns="http://www.w3.org/2000/svg"
       class="map-svg"
@@ -20,22 +21,31 @@
 </template>
 
 <script setup>
+import { ref, onMounted, nextTick } from 'vue';
 import { useMapStore } from '@/stores/mapStore';
 import { districts } from '@/data/districts';
 
 const mapStore = useMapStore();
+const svgEl = ref(null);
+const viewBox = ref('0 0 700 400');
+
+onMounted(async () => {
+  await nextTick();
+
+  const svg = svgEl.value;
+  if (!svg) return;
+
+  const bbox = svg.getBBox();
+  if (!bbox.width || !bbox.height) return;
+
+  const padding = 20;
+  viewBox.value = `${bbox.x - padding} ${bbox.y - padding} ${bbox.width + padding * 2} ${bbox.height + padding * 2}`;
+});
 
 const getDistrictClass = (id) => {
   const selected = mapStore.selectedDistrict;
-
-  if (!selected) {
-    return 'district-default';
-  }
-
-  if (selected === id) {
-    return 'district-active';
-  }
-
+  if (!selected) return 'district-default';
+  if (selected === id) return 'district-active';
   return 'district-dimmed';
 };
 
@@ -44,11 +54,8 @@ let lastCallId = null;
 
 const selectDistrictGuarded = (id) => {
   const now = Date.now();
-  const timeSinceLast = now - lastCallTime;
 
-  if (lastCallId === id && timeSinceLast < 400) {
-    lastCallTime = now;
-    lastCallId = id;
+  if (lastCallId === id && now - lastCallTime < 400) {
     return;
   }
 
@@ -91,7 +98,6 @@ const selectDistrictGuarded = (id) => {
   outline: none;
 }
 
-/* State Classes */
 .district-default {
   fill: #cbd5e1;
   stroke: #94a3b8;
@@ -113,7 +119,6 @@ const selectDistrictGuarded = (id) => {
   opacity: 0.7;
 }
 
-/* Safely scoped hover effect for fine-pointer devices (mice) */
 @media (hover: hover) and (pointer: fine) {
   .district:hover {
     fill: #b57b52;
