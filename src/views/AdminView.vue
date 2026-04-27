@@ -6,10 +6,10 @@
           Manage Articles
         </button>
         <button :class="{ active: activeTab === 'create' }" @click="activeTab = 'create'">
-          + New Article
+          New Article
         </button>
+        <button @click="handleLogout" class="logout-tab">Logout</button>
       </div>
-      <button @click="handleLogout" class="logout-btn">Logout</button>
     </header>
 
     <ArticleList
@@ -27,17 +27,17 @@
         </p>
 
         <ArticleForm
-  v-model:form="form"
-  :mode="editingId ? 'edit' : 'create'"
-  :districts="districts"
-  :categories="categories"
-  :uploading="uploading"
-  :require-image="!editingId"
-  @submit="uploadArticle(true)"
-  @save-draft="uploadArticle(false)"
-  @file-change="handleFileChange"
-  @error="handleFormError"
-/>
+          v-model:form="form"
+          :mode="editingId ? 'edit' : 'create'"
+          :districts="districts"
+          :categories="categories"
+          :uploading="uploading"
+          :require-image="!editingId"
+          @submit="uploadArticle(true)"
+          @save-draft="uploadArticle(false)"
+          @file-change="handleFileChange"
+          @error="handleFormError"
+        />
 
         <p v-if="statusMsg" :class="['status', isError ? 'error' : 'success']">
           {{ statusMsg }}
@@ -55,12 +55,12 @@
     </div>
 
     <ConfirmModal
-  :isOpen="isModalOpen"
-  :title="articleToDelete?.title || 'this article'"
-  @confirm="executeDelete"
-  @cancel="closeModal"
-/>
-<p v-if="deleteError" class="status error">{{ deleteError }}</p>
+      :isOpen="isModalOpen"
+      :title="articleToDelete?.title || 'this article'"
+      @confirm="executeDelete"
+      @cancel="closeModal"
+    />
+    <p v-if="deleteError" class="status error">{{ deleteError }}</p>
   </div>
 </template>
 
@@ -124,9 +124,46 @@ const handleLogout = async () => {
   align-items: center;
   margin-bottom: 2rem;
   background: white;
-  padding: 1.5rem;
+  padding: 1rem 1.5rem;
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  width: 100%;
+}
+
+/* All three nav buttons share the same base style */
+.tabs button {
+  padding: 0.6rem 1.4rem;
+  border: 1.5px solid #d4b896;
+  background: white;
+  color: #b57b52;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.tabs button:hover {
+  background: #fdf6f0;
+  border-color: #b57b52;
+}
+
+.tabs button.active {
+  background: #b57b52;
+  color: white;
+  border-color: #b57b52;
+}
+
+/* Push logout to the far right */
+.logout-tab {
+  margin-left: auto;
 }
 
 .admin-editor-layout {
@@ -171,62 +208,6 @@ const handleLogout = async () => {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
   min-height: 600px;
   overflow-y: auto;
-}
-
-.preview-content h1 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-}
-
-.preview-meta {
-  margin-bottom: 2rem;
-  color: #666;
-  display: flex;
-  gap: 10px;
-}
-
-.preview-text {
-  line-height: 1.6;
-  white-space: pre-wrap;
-}
-
-.preview-map-mock {
-  margin-top: 20px;
-  padding: 15px;
-  background: #f0fdf4;
-  border: 1px dashed #4ade80;
-  border-radius: 8px;
-}
-
-.tabs {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.tabs button {
-  padding: 0.6rem 1.2rem;
-  border: none;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: background 0.2s ease;
-}
-
-.tabs button.active {
-  background: #b57b52;
-  color: white;
-}
-
-.logout-btn {
-  background: none;
-  border: 1px solid #ddd;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.logout-btn:hover {
-  background: #f5f5f5;
 }
 
 .editing-banner {
