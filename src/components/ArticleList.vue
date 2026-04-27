@@ -1,59 +1,38 @@
 <template>
   <div class="manage-section">
-
     <div class="search-bar">
       <input
+        v-model="searchQuery"
         type="text"
         placeholder="Search articles by title…"
-        v-model="searchQuery"
         aria-label="Search articles"
       />
     </div>
 
-    <!-- Mobile cards (< 640px) -->
-    <ul class="article-cards" aria-label="Articles list">
+    <ul class="article-list" role="list" aria-label="Articles list">
+      <li class="article-row article-row--header" aria-hidden="true">
+        <span>Title</span>
+        <span>Status</span>
+        <span>Actions</span>
+      </li>
+
       <li v-if="filteredArticles.length === 0" class="empty-state">
         No articles found.
       </li>
+
       <li
         v-for="article in filteredArticles"
         :key="article.id"
-        class="article-card"
+        class="article-row"
       >
-        <div class="card-main">
-          <span class="card-title">{{ article.title }}</span>
-          <StatusBadge :status="resolveStatus(article)" />
-        </div>
-        <div class="card-actions">
+        <span class="col-title" :title="article.title">{{ article.title }}</span>
+        <StatusBadge :status="resolveStatus(article)" />
+        <div class="col-actions">
           <button class="btn btn--edit" @click="$emit('edit', article)">Edit</button>
           <button class="btn btn--delete" @click="$emit('delete', article.id)">Delete</button>
         </div>
       </li>
     </ul>
-
-    <!-- Desktop table (≥ 640px) -->
-    <table class="articles-table" aria-label="Articles list">
-      <thead>
-        <tr>
-          <th scope="col">Title</th>
-          <th scope="col">Status</th>
-          <th scope="col">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-if="filteredArticles.length === 0">
-          <td colspan="3" class="empty-state">No articles found.</td>
-        </tr>
-        <tr v-for="article in filteredArticles" :key="article.id">
-          <td class="col-title" :title="article.title">{{ article.title }}</td>
-          <td><StatusBadge :status="resolveStatus(article)" /></td>
-          <td class="col-actions">
-            <button class="btn btn--edit" @click="$emit('edit', article)">Edit</button>
-            <button class="btn btn--delete" @click="$emit('delete', article.id)">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
   </div>
 </template>
 
@@ -105,7 +84,7 @@ const filteredArticles = computed<Article[]>(() =>
 // ─── Status resolution ────────────────────────────────────────────────────────
 
 function resolveStatus(article: Article): ArticleStatus {
-  const now = new Date()
+  const now  = new Date()
   const from = article.scheduled_from ? new Date(article.scheduled_from) : null
   const to   = article.scheduled_to   ? new Date(article.scheduled_to)   : null
 
@@ -146,9 +125,9 @@ export default defineComponent({ name: 'ManageArticles' })
   box-shadow: 0 0 0 3px rgba(181, 123, 82, 0.15);
 }
 
-/* ─── Mobile cards (default) ──────────────────────────────────────────────── */
+/* ─── List shell ──────────────────────────────────────────────────────────── */
 
-.article-cards {
+.article-list {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -157,90 +136,68 @@ export default defineComponent({ name: 'ManageArticles' })
   gap: 0.75rem;
 }
 
-.article-card {
+/* ─── Mobile: each row is a card ─────────────────────────────────────────── */
+
+.article-row {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.625rem;
   padding: 1rem;
   border: 1px solid #edf2f7;
   border-radius: 10px;
   background: #fff;
 }
 
-.card-main {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.card-title {
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: #1a202c;
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.card-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-/* Hide cards on desktop */
-@media (min-width: 640px) {
-  .article-cards {
-    display: none;
-  }
-}
-
-/* ─── Desktop table (≥ 640px) ─────────────────────────────────────────────── */
-
-.articles-table {
+.article-row--header {
   display: none;
-}
-
-@media (min-width: 640px) {
-  .articles-table {
-    display: table;
-    width: 100%;
-    border-collapse: collapse;
-  }
-}
-
-.articles-table th {
-  text-align: left;
-  padding: 0.875rem 1rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #718096;
-  border-bottom: 2px solid #edf2f7;
-  background: #fdfcf8;
-}
-
-.articles-table td {
-  padding: 0.875rem 1rem;
-  border-bottom: 1px solid #edf2f7;
-  font-size: 0.95rem;
-  color: #2d3748;
-  vertical-align: middle;
-}
-
-.col-title {
-  max-width: 320px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .col-actions {
   display: flex;
   gap: 0.5rem;
+}
+
+/* ─── Desktop: grid mimics a table ───────────────────────────────────────── */
+
+@media (min-width: 640px) {
+  .article-list {
+    gap: 0;
+    border: 1px solid #edf2f7;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .article-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.875rem 1rem;
+    border: none;
+    border-bottom: 1px solid #edf2f7;
+    border-radius: 0;
+  }
+
+  .article-row:last-child {
+    border-bottom: none;
+  }
+
+  .article-row--header {
+    display: grid;
+    background: #fdfcf8;
+    border-bottom: 2px solid #edf2f7;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #718096;
+  }
+
+  .col-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 /* ─── Empty state ─────────────────────────────────────────────────────────── */
