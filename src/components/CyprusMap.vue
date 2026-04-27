@@ -12,8 +12,7 @@
         :key="id"
         :id="id"
         :d="pathData"
-        class="district"
-        :style="getPathStyle(id)"
+        :class="['district', getDistrictClass(id)]"
         @click="selectDistrictGuarded(id)"
       />
     </svg>
@@ -26,39 +25,18 @@ import { districts } from '@/data/districts';
 
 const mapStore = useMapStore();
 
-const COLORS = {
-  default: '#cbd5e1', 
-  active: '#b57b52',
-  dimmed: '#d1d5db',
-};
-
-const getPathStyle = (id) => {
+const getDistrictClass = (id) => {
   const selected = mapStore.selectedDistrict;
 
   if (!selected) {
-    return {
-      fill: COLORS.default,
-      stroke: '#94a3b8',
-      strokeWidth: '1',
-      opacity: '1',
-    };
+    return 'district-default';
   }
 
   if (selected === id) {
-    return {
-      fill: COLORS.active,
-      stroke: '#8d5d3a',
-      strokeWidth: '2.5',
-      opacity: '1',
-    };
+    return 'district-active';
   }
 
-  return {
-    fill: COLORS.dimmed,
-    stroke: 'rgba(148, 163, 184, 0.5)',
-    strokeWidth: '1',
-    opacity: '0.7',
-  };
+  return 'district-dimmed';
 };
 
 let lastCallTime = 0;
@@ -113,9 +91,32 @@ const selectDistrictGuarded = (id) => {
   outline: none;
 }
 
-@media (hover: hover) {
+/* State Classes */
+.district-default {
+  fill: #cbd5e1;
+  stroke: #94a3b8;
+  stroke-width: 1;
+  opacity: 1;
+}
+
+.district-active {
+  fill: #b57b52;
+  stroke: #8d5d3a;
+  stroke-width: 2.5;
+  opacity: 1;
+}
+
+.district-dimmed {
+  fill: #d1d5db;
+  stroke: rgba(148, 163, 184, 0.5);
+  stroke-width: 1;
+  opacity: 0.7;
+}
+
+/* Safely scoped hover effect for fine-pointer devices (mice) */
+@media (hover: hover) and (pointer: fine) {
   .district:hover {
-    fill: #b57b52 !important;
+    fill: #b57b52;
   }
 }
 </style>
