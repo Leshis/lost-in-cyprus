@@ -26,7 +26,7 @@
         </div>
         <div class="card-actions">
           <button class="btn btn--edit" @click="$emit('edit', article)">Edit</button>
-          <button class="btn btn--delete" @click="confirmDelete(article)">Delete</button>
+          <button class="btn btn--delete" @click="$emit('delete', article.id)">Delete</button>
         </div>
       </li>
     </ul>
