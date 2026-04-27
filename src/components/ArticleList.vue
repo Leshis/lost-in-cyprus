@@ -49,21 +49,11 @@
           <td><StatusBadge :status="resolveStatus(article)" /></td>
           <td class="col-actions">
             <button class="btn btn--edit" @click="$emit('edit', article)">Edit</button>
-            <button class="btn btn--delete" @click="confirmDelete(article)">Delete</button>
+            <button class="btn btn--delete" @click="$emit('delete', article.id)">Delete</button>
           </td>
         </tr>
       </tbody>
     </table>
-
-    <!-- Delete confirmation dialog -->
-    <dialog ref="dialogRef" class="confirm-dialog" @close="pendingDelete = null">
-      <p>Delete <strong>{{ pendingDelete?.title }}</strong>? This cannot be undone.</p>
-      <div class="dialog-actions">
-        <button class="btn btn--ghost" @click="dialogRef?.close()">Cancel</button>
-        <button class="btn btn--delete" @click="handleDeleteConfirmed">Delete</button>
-      </div>
-    </dialog>
-
   </div>
 </template>
 
@@ -123,23 +113,6 @@ function resolveStatus(article: Article): ArticleStatus {
   if (to && now > to)     return 'expired'
   if (from && now < from) return 'scheduled'
   return 'published'
-}
-
-// ─── Delete confirmation ──────────────────────────────────────────────────────
-
-const dialogRef     = ref<HTMLDialogElement | null>(null)
-const pendingDelete = ref<Article | null>(null)
-
-function confirmDelete(article: Article): void {
-  pendingDelete.value = article
-  dialogRef.value?.showModal()
-}
-
-function handleDeleteConfirmed(): void {
-  if (pendingDelete.value) {
-    emit('delete', pendingDelete.value.id)
-  }
-  dialogRef.value?.close()
 }
 </script>
 
@@ -362,33 +335,5 @@ export default defineComponent({ name: 'ManageArticles' })
 
 .btn--ghost:hover {
   background: #f7fafc;
-}
-
-/* ─── Confirm dialog ──────────────────────────────────────────────────────── */
-
-.confirm-dialog {
-  border: none;
-  border-radius: 12px;
-  padding: 1.75rem;
-  width: min(420px, 90vw);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-  font-family: inherit;
-}
-
-.confirm-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.4);
-}
-
-.confirm-dialog p {
-  margin: 0 0 1.25rem;
-  font-size: 0.95rem;
-  color: #2d3748;
-  line-height: 1.5;
-}
-
-.dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
 }
 </style>
