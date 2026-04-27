@@ -55,7 +55,7 @@ let lastCallId = null;
 const selectDistrictGuarded = (id) => {
   const now = Date.now();
 
-  if (lastCallId === id && now - lastCallTime < 400) {
+  if (lastCallId === id && now - lastCallTime < 100) {
     return;
   }
 
