@@ -79,9 +79,15 @@ const handleNavigation = (target) => {
   align-items: center;
 }
 
+.logo-link {
+  display: flex;
+  align-items: center;
+}
+
 .cyprus-icon {
   height: 32px;
   width: auto;
+  display: block;
 }
 
 .hamburger-trigger {
