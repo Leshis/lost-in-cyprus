@@ -247,6 +247,13 @@ const handleLogout = async () => {
   color: #2e7d32;
 }
 
+@media (max-width: 600px) {
+  .tabs button {
+    padding: 0.5rem 0.85rem;
+    font-size: 0.8rem;
+  }
+}
+
 @media (max-width: 1100px) {
   .live-preview-section {
     display: none;
