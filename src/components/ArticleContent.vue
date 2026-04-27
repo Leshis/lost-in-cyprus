@@ -83,6 +83,56 @@ const formatDate = (dateString?: string): string => {
 }
 </script>
 
+  
+
+  border: 1px solid #1c2a32;
+  border-radius: 4px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.map-link:hover {
+  background: #1c2a32;
+  color: #fff;
+}
+
+.content-text {
+  line-height: 1.8;
+  font-size: 1rem;
+  color: #2c3e50;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* ─── Tablet and up ───────────────────────────────────── */
+@media (min-width: 640px) {
+  .hero-overlay h1 {
+    font-size: 1.7rem;
+  }
+
+  .hero-overlay {
+    padding: 40px 24px 24px;
+  }
+
+  .hero-nav {
+    padding: 16px 24px;
+  }
+
+  .meta-info {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .article-body {
+    padding: 28px 24px;
+  }
+
+  .content-text {
+    font-size: 1.05rem;
+  }
+}
+
 <style scoped>
 /* ─── Base (mobile-first) ─────────────────────────────── */
 
@@ -91,7 +141,6 @@ const formatDate = (dateString?: string): string => {
   min-height: 100vh;
 }
 
-/* Hero */
 .article-hero {
   height: 40svh;
   position: relative;
@@ -114,14 +163,12 @@ const formatDate = (dateString?: string): string => {
   background-color: #1c2a32;
 }
 
-/* Nav bar — sits at the very top, doesn't clash with logo */
 .hero-nav {
   position: relative;
   z-index: 2;
   display: flex;
   align-items: center;
   padding: 12px 16px;
-  /* subtle gradient so the button is readable over any image */
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.45), transparent);
 }
 
@@ -157,7 +204,6 @@ const formatDate = (dateString?: string): string => {
   line-height: 1;
 }
 
-/* Hero text overlay */
 .hero-overlay {
   position: relative;
   z-index: 1;
@@ -173,7 +219,6 @@ const formatDate = (dateString?: string): string => {
   line-height: 1.3;
 }
 
-/* Discrete category pill — dark chip, no bright colour */
 .category-pill {
   display: inline-block;
   margin-bottom: 8px;
@@ -190,7 +235,6 @@ const formatDate = (dateString?: string): string => {
   -webkit-backdrop-filter: blur(4px);
 }
 
-/* Article body */
 .article-body {
   padding: 20px 16px;
   max-height: 520px;
@@ -199,7 +243,9 @@ const formatDate = (dateString?: string): string => {
 
 .meta-info {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
   gap: 8px;
   color: #666;
   font-size: 0.85rem;
@@ -252,12 +298,6 @@ const formatDate = (dateString?: string): string => {
 
   .hero-nav {
     padding: 16px 24px;
-  }
-
-  .meta-info {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
   }
 
   .article-body {
