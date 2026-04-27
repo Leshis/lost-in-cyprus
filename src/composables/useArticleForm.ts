@@ -13,6 +13,7 @@ export interface ArticleFormFields {
   long: number | null
   scheduled_from: string | null
   scheduled_to: string | null
+  is_published: boolean
 }
 
 const EMPTY_FORM: ArticleFormFields = {
@@ -25,6 +26,7 @@ const EMPTY_FORM: ArticleFormFields = {
   long: null,
   scheduled_from: null,
   scheduled_to: null,
+  is_published: false
 }
 
 export function useArticleForm(onSuccess: () => Promise<void>) {
