@@ -39,7 +39,7 @@
           <img :src="getImageUrl(loc.image_url)" :alt="loc.title" class="card-img" />
 
           <div class="card-content">
-            <span class="category-tag">{{ loc.category }}</span>
+            <span class="category-tag">{{ loc.category.replace('_', ' ') }}</span>
             <h4>{{ loc.title }}</h4>
             <p>{{ loc.content ? stripHtml(loc.content).substring(0, 80) + '…' : '' }}</p>
 
@@ -80,12 +80,22 @@ interface Location {
   affiliate_url?: string
 }
 
+// ─── Map Supabase enums to emojis ──────────────────────────────────────────
 const CATEGORY_EMOJIS: Record<string, string> = {
-  hiking: '🧗',
+  beaches: '🏖️',
+  hiking: '🥾',
   wine: '🍷',
-  beach: '🏖️',
   culture: '🏛️',
-  food: '🍲',
+  archaeology: '🏺',
+  gastronomy: '🍲',
+  religious: '⛪',
+  rural: '🏡',
+  diving: '🤿',
+  nightlife: '🪩',
+  nature: '🌿',
+  family: '🎡',
+  wellness: '🧘‍♀️',
+  hidden_gems: '💎',
 }
 
 const mapStore = useMapStore()
@@ -95,9 +105,17 @@ const activeFilter = ref<string>('all')
 
 onMounted(() => articleStore.fetchArticles())
 
+// ─── Format snake_case to Title Case with Emoji ────────────────────────────
 const formatCategoryLabel = (cat: string): string => {
   const emoji = CATEGORY_EMOJIS[cat.toLowerCase()] ?? '📍'
-  return `${emoji} ${cat.charAt(0).toUpperCase() + cat.slice(1)}`
+  
+  // Converts 'hidden_gems' into 'Hidden Gems'
+  const formattedText = cat
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+    
+  return `${emoji} ${formattedText}`
 }
 
 const dynamicCategories = computed<Category[]>(() => {
