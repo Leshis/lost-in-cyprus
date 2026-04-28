@@ -56,6 +56,7 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
   }
 
   const handleEdit = (article: Article) => {
+    resetForm()
     let extractedLat = article.lat
     let extractedLong = article.long
 
