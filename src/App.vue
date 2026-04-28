@@ -68,7 +68,7 @@
     <main class="main-content">
       <router-view />
     </main>
-   <TheFooter />
+   <TheFooter v-if="!shouldHideNav" />
   </div>
 </template>
 
