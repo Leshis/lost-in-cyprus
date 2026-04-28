@@ -68,6 +68,7 @@
     <main class="main-content">
       <router-view />
     </main>
+   <TheFooter />
   </div>
 </template>
 
@@ -75,6 +76,12 @@
 import { computed, ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import TheMenu from '@/components/TheMenu.vue';
+<script setup lang="ts">
+import { RouterView } from 'vue-router'
+import TheFooter from '@/components/TheFooter.vue'
+// import TheNavbar from '@/components/TheNavbar.vue' (If you have one)
+</script>
+
 import { useArticleStore } from '@/stores/articleStore';
 import { getImageUrl } from '@/utils/supabaseHelpers';
 
