@@ -19,6 +19,19 @@ export function useDeleteModal(articles: import('vue').Ref<Article[]>) {
     deleteError.value = null
   }
 
+  // Add this helper inside useArticleForm
+  const deleteImageFromStorage = async (path: string) => {
+    try {
+      const { error } = await supabase.storage
+        .from('articles')
+        .remove([path]) // remove() expects an array of paths
+
+      if (error) console.error('Storage cleanup failed:', error.message)
+    } catch (err) {
+      console.error('Storage error:', err)
+    }
+  }
+
   const executeDelete = async () => {
     if (!articleToDelete.value) return
 
@@ -30,6 +43,11 @@ export function useDeleteModal(articles: import('vue').Ref<Article[]>) {
       deleteError.value = 'Failed to delete article. Please try again.' // surface to UI
       return // don't close modal — let user see the error
     }
+
+    if (articleToDelete.value?.image_url) {
+      await deleteImageFromStorage(articleToDelete.value.image_url)
+    }
+
 
     articles.value = articles.value.filter(a => a.id !== id)
     closeModal()

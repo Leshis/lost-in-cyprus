@@ -2,7 +2,7 @@ import { ref, reactive } from 'vue'
 import { supabase } from '@/supabase'
 import type { Article } from '@/types/article'
 
-export type ArticleFormFields = Omit<Article, 'id' | 'created_at' | 'image_url'>
+export type ArticleFormFields = Omit<Article, 'id' | 'created_at'>
 
 const EMPTY_FORM: ArticleFormFields = {
   title: '',
@@ -15,7 +15,8 @@ const EMPTY_FORM: ArticleFormFields = {
   scheduled_from: null,
   scheduled_to: null,
   is_published: false,
-  affiliate_url: null
+  affiliate_url: null,
+  image_url: null
 }
 
 export function useArticleForm(onSuccess: () => Promise<void>) {
@@ -69,6 +70,7 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
     }
   }
 
+
   const handleTogglePublish = async (): Promise<void> => {
     if (!editingId.value) return
     // Determine the opposite of the current state
@@ -88,13 +90,13 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
       // Update the local form state so the UI reacts immediately
       form.is_published = newPublishState
       statusMsg.value = newPublishState ? 'Article published.' : 'Article unpublished.'
-      
+
       await onSuccess()
       setTimeout(() => resetForm(), 1500)
     } catch (err) {
       isError.value = true
-      statusMsg.value = err instanceof Error 
-        ? err.message 
+      statusMsg.value = err instanceof Error
+        ? err.message
         : `Failed to ${newPublishState ? 'publish' : 'unpublish'}.`
     } finally {
       uploading.value = false
@@ -112,13 +114,18 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
       statusMsg.value = 'Saving...'
       isError.value = false
 
+      // 1. Keep track of the old image if we are editing
+      const oldImagePath = editingId.value ? form.image_url : null
+
       let imagePath: string | undefined
       if (selectedFile.value) {
         const ext = selectedFile.value.name.split('.').pop()
         const fileName = `${crypto.randomUUID()}.${ext}`
+
         const { error: uploadError } = await supabase.storage
           .from('articles')
           .upload(fileName, selectedFile.value)
+
         if (uploadError) throw uploadError
         imagePath = fileName
       }
@@ -144,13 +151,29 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
             ...(imagePath && { image_url: imagePath }),
           })
           .eq('id', editingId.value)
+
         if (error) throw error
+
+        // 🔥 CLEANUP: If the update was successful AND we uploaded a new image,
+        // delete the old one from the bucket.
+        if (imagePath && oldImagePath) {
+          // We don't "await" this or "throw" here because the DB update 
+          // is already successful; a storage failure shouldn't break the UI.
+          supabase.storage
+            .from('articles')
+            .remove([oldImagePath])
+            .then(({ error: delError }) => {
+              if (delError) console.warn('Failed to clean up old image:', delError)
+            })
+        }
+
         statusMsg.value = publish ? 'Article published!' : 'Draft saved!'
       } else {
         if (!imagePath) throw new Error('Please select an image.')
         const { error } = await supabase
           .from('articles')
           .insert([{ ...articlePayload, image_url: imagePath }])
+
         if (error) throw error
         statusMsg.value = publish ? 'Article published!' : 'Draft saved!'
       }
