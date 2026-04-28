@@ -25,25 +25,37 @@ export default defineConfig([
   js.configs.recommended,
   ...pluginVue.configs['flat/essential'],
 
-  // 1. Config for standard .ts files
+  {
+    files: ['**/*.ts', '**/*.vue'], // Target both types
+    plugins: {
+      '@typescript-eslint': typescriptPlugin,
+    },
+    rules: {
+      // 🎯 The Cleanup Rules
+      'no-unused-vars': 'off', // Turn off base rule as it can clash with TS
+      '@typescript-eslint/no-unused-vars': ['warn', { 
+        'argsIgnorePattern': '^_', 
+        'varsIgnorePattern': '^_' 
+      }],
+      'vue/no-unused-vars': 'warn',
+      'vue/no-unused-components': 'warn'
+    }
+  },
+
   {
     files: ['**/*.ts'],
     languageOptions: {
       parser: typescriptParser,
       sourceType: 'module',
     },
-    plugins: {
-      '@typescript-eslint': typescriptPlugin,
-    },
   },
 
-  // 2. Config for .vue files (keep this as you had it)
   {
     files: ['**/*.vue'],
     languageOptions: {
-      parser: pluginVue.parser, // Use Vue parser as the primary
+      parser: pluginVue.parser,
       parserOptions: {
-        parser: typescriptParser, // Tell it to use TS for the <script> block
+        parser: typescriptParser,
       },
     },
   },
