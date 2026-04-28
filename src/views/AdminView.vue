@@ -37,6 +37,7 @@
           @save-draft="uploadArticle(false)"
           @file-change="handleFileChange"
           @error="handleFormError"
+          @unpublish="unpublishArticle"
         />
 
         <p v-if="statusMsg" :class="['status', isError ? 'error' : 'success']">
@@ -76,7 +77,7 @@ import ArticleContent from '@/components/ArticleContent.vue'
 import ArticleList from '@/components/ArticleList.vue'
 import ArticleForm from '@/components/ArticleForm.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
-import type { Article } from '@/composables/useAdminArticles'
+import type { Article } from '@/types/article' 
 
 useHead({
   title: 'Admin',
@@ -90,7 +91,7 @@ const { articles, categories, districts, fetchArticles } = useAdminArticles()
 
 const {
   form, uploading, statusMsg, isError, editingId,
-  resetForm, handleEdit, handleFileChange, handleFormError, uploadArticle,
+  resetForm, handleEdit, handleFileChange, handleFormError, uploadArticle, unpublishArticle
 } = useArticleForm(fetchArticles)
 
 const { isModalOpen, articleToDelete, deleteError, openDeleteModal, closeModal, executeDelete } =

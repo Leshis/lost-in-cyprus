@@ -69,75 +69,101 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
     }
   }
 
+  const unpublishArticle = async (): Promise<void> => {
+    if (!editingId.value) return
+
+    try {
+      uploading.value = true
+      statusMsg.value = 'Unpublishing...'
+      isError.value = false
+
+      const { error } = await supabase
+        .from('articles')
+        .update({ is_published: false })
+        .eq('id', editingId.value)
+
+      if (error) throw error
+
+      statusMsg.value = 'Article unpublished.'
+      await onSuccess()
+      setTimeout(() => resetForm(), 1500)
+    } catch (err) {
+      isError.value = true
+      statusMsg.value = err instanceof Error ? err.message : 'Failed to unpublish.'
+    } finally {
+      uploading.value = false
+    }
+  }
+
   const handleFormError = (message: string) => {
     isError.value = true
     statusMsg.value = message
   }
 
   const uploadArticle = async (publish: boolean = true) => {
-  try {
-    uploading.value = true
-    statusMsg.value = 'Saving...'
-    isError.value = false
+    try {
+      uploading.value = true
+      statusMsg.value = 'Saving...'
+      isError.value = false
 
-    let imagePath: string | undefined
-    if (selectedFile.value) {
-      const ext = selectedFile.value.name.split('.').pop()
-      const fileName = `${crypto.randomUUID()}.${ext}`
-      const { error: uploadError } = await supabase.storage
-        .from('articles')
-        .upload(fileName, selectedFile.value)
-      if (uploadError) throw uploadError
-      imagePath = fileName
+      let imagePath: string | undefined
+      if (selectedFile.value) {
+        const ext = selectedFile.value.name.split('.').pop()
+        const fileName = `${crypto.randomUUID()}.${ext}`
+        const { error: uploadError } = await supabase.storage
+          .from('articles')
+          .upload(fileName, selectedFile.value)
+        if (uploadError) throw uploadError
+        imagePath = fileName
+      }
+
+      const articlePayload = {
+        title: form.title,
+        slug: form.slug,
+        district: form.district,
+        content: form.content,
+        category: form.category,
+        lat: form.lat,
+        long: form.long,
+        scheduled_from: form.scheduled_from || null,
+        scheduled_to: form.scheduled_to || null,
+        is_published: publish,  // 👈 key addition
+      }
+
+      if (editingId.value) {
+        const { error } = await supabase
+          .from('articles')
+          .update({
+            ...articlePayload,
+            ...(imagePath && { image_url: imagePath }),
+          })
+          .eq('id', editingId.value)
+        if (error) throw error
+        statusMsg.value = publish ? 'Article published!' : 'Draft saved!'
+      } else {
+        if (!imagePath) throw new Error('Please select an image.')
+        const { error } = await supabase
+          .from('articles')
+          .insert([{ ...articlePayload, image_url: imagePath }])
+        if (error) throw error
+        statusMsg.value = publish ? 'Article published!' : 'Draft saved!'
+      }
+
+      await onSuccess()
+      setTimeout(() => { resetForm() }, 1500)
+
+    } catch (err) {
+      isError.value = true
+      statusMsg.value = err instanceof Error ? err.message : 'An unexpected error occurred.'
+    } finally {
+      uploading.value = false
     }
-
-    const articlePayload = {
-      title: form.title,
-      slug: form.slug,
-      district: form.district,
-      content: form.content,
-      category: form.category,
-      lat: form.lat,
-      long: form.long,
-      scheduled_from: form.scheduled_from || null,
-      scheduled_to: form.scheduled_to || null,
-      is_published: publish,  // 👈 key addition
-    }
-
-    if (editingId.value) {
-      const { error } = await supabase
-        .from('articles')
-        .update({
-          ...articlePayload,
-          ...(imagePath && { image_url: imagePath }),
-        })
-        .eq('id', editingId.value)
-      if (error) throw error
-      statusMsg.value = publish ? 'Article published!' : 'Draft saved!'
-    } else {
-      if (!imagePath) throw new Error('Please select an image.')
-      const { error } = await supabase
-        .from('articles')
-        .insert([{ ...articlePayload, image_url: imagePath }])
-      if (error) throw error
-      statusMsg.value = publish ? 'Article published!' : 'Draft saved!'
-    }
-
-    await onSuccess()
-    setTimeout(() => { resetForm() }, 1500)
-
-  } catch (err) {
-    isError.value = true
-    statusMsg.value = err instanceof Error ? err.message : 'An unexpected error occurred.'
-  } finally {
-    uploading.value = false
   }
-}
 
   return {
     form, uploading, statusMsg, isError,
     editingId, selectedFile,
     resetForm, handleEdit, handleFileChange,
-    handleFormError, uploadArticle,
+    handleFormError, uploadArticle, unpublishArticle, // 👈
   }
 }

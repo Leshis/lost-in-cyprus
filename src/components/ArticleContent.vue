@@ -49,8 +49,14 @@
 import { getImageUrl } from '@/utils/supabaseHelpers'
 import type { Article } from '@/types/article';
 
+type PreviewArticle = Omit<Article, 'id' | 'image_url' | 'created_at'> & {
+  id?: string
+  image_url?: string | null
+  created_at?: string
+}
+
 defineProps<{
-  article: Article
+  article: PreviewArticle
   isPreview?: boolean
 }>()
 
