@@ -335,6 +335,7 @@ const handleAction = (loc: Article): void => {
   .map-section {
     flex: 0 0 50%;
     height: 100dvh;
+    padding-top: 68px;
     min-height: unset;
   }
 
@@ -344,6 +345,7 @@ const handleAction = (loc: Article): void => {
     border-radius: 0;
     margin-top: 0;
     padding: 30px;
+    padding-top: 88px;
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.05);
   }
 
