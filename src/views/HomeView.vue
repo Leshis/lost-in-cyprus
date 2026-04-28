@@ -60,9 +60,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMapStore } from '@/stores/mapStore'
-import { Article, useArticleStore } from '@/stores/articleStore'
+import { useArticleStore } from '@/stores/articleStore'
 import CyprusMap from '@/components/CyprusMap.vue'
 import { getImageUrl } from '@/utils/supabaseHelpers'
+import type { Article } from '@/types/article'
 
 interface Category {
   id: string
@@ -166,7 +167,7 @@ const handleAction = (loc: Article): void => {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-  width: 100vw;
+  width: 100%;
   background-color: #f8f6f0;
 }
 

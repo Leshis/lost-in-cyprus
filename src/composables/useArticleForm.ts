@@ -1,20 +1,8 @@
 import { ref, reactive } from 'vue'
 import { supabase } from '@/supabase'
-import { processEnum, buildPostgisPoint } from '@/utils/articleHelpers'
-import type { Article } from '@/composables/useAdminArticles'
+import type { Article } from '@/types/article'
 
-export interface ArticleFormFields {
-  title: string
-  slug: string
-  district: string
-  content: string
-  category: string
-  lat: number | null
-  long: number | null
-  scheduled_from: string | null
-  scheduled_to: string | null
-  is_published: boolean
-}
+export type ArticleFormFields = Omit<Article, 'id' | 'created_at' | 'image_url'>
 
 const EMPTY_FORM: ArticleFormFields = {
   title: '',
@@ -26,7 +14,8 @@ const EMPTY_FORM: ArticleFormFields = {
   long: null,
   scheduled_from: null,
   scheduled_to: null,
-  is_published: false
+  is_published: false,
+  affiliate_url: null
 }
 
 export function useArticleForm(onSuccess: () => Promise<void>) {

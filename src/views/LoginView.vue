@@ -7,23 +7,25 @@
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="input-group">
           <label for="email">Email</label>
-          <input 
-            type="email" 
-            id="email" 
-            v-model="email" 
-            placeholder="curator@lostincyprus.com" 
-            required 
+          <input
+            type="email"
+            id="email"
+            v-model="email"
+            placeholder="curator@lostincyprus.com"
+            required
+            autocomplete="email"
           />
         </div>
 
         <div class="input-group">
           <label for="password">Password</label>
-          <input 
-            type="password" 
-            id="password" 
-            v-model="password" 
-            placeholder="••••••••" 
-            required 
+          <input
+            type="password"
+            id="password"
+            v-model="password"
+            placeholder="••••••••"
+            required
+            autocomplete="current-password"
           />
         </div>
 
@@ -37,68 +39,71 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue';
-import { supabase } from '../supabase'; // Adjust path to your supabase.js
-import { useRouter } from 'vue-router';
+<script setup lang="ts">
+import { ref } from 'vue'
+import { supabase } from '@/supabase'
+import { useRouter } from 'vue-router'
+import type { AuthError } from '@supabase/supabase-js'
 
-const router = useRouter();
-const email = ref('');
-const password = ref('');
-const loading = ref(false);
-const errorMsg = ref('');
+const router = useRouter()
+const email = ref<string>('')
+const password = ref<string>('')
+const loading = ref<boolean>(false)
+const errorMsg = ref<string>('')
 
-const handleLogin = async () => {
+const handleLogin = async (): Promise<void> => {
   try {
-    loading.ref = true;
-    errorMsg.value = '';
-    
+    loading.value = true  // ← was loading.ref = true (bug)
+    errorMsg.value = ''
+
     const { error } = await supabase.auth.signInWithPassword({
       email: email.value,
       password: password.value,
-    });
+    })
 
-    if (error) throw error;
+    if (error) throw error
 
-    // Success! Send them to the obscure admin route
-    router.push('/gate');
-  } catch (error) {
-    errorMsg.value = error.message;
+    router.push('/gate')
+  } catch (err) {
+    errorMsg.value = (err as AuthError).message
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 </script>
 
 <style scoped>
+/* ── Mobile first ─────────────────────── */
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 80vh;
-  background-color: #fdfcf8; /* Your Off-white */
+  min-height: 100dvh;
+  padding: 16px;
+  background-color: #fdfcf8;
+  box-sizing: border-box;
 }
 
 .login-card {
   background: white;
-  padding: 2.5rem;
-  border-radius: 12px;
+  padding: 2rem 1.5rem;
+  border-radius: 16px;
   box-shadow: 0 10px 25px rgba(28, 42, 50, 0.05);
   width: 100%;
-  max-width: 400px;
   text-align: center;
   border: 1px solid #eee;
 }
 
 .brand-title {
-  color: #b57b52; /* Your Gold/Tan */
-  font-family: 'Serif', Georgia, serif;
+  color: #b57b52;
+  font-family: Georgia, serif;
+  font-size: 1.5rem;
   margin-bottom: 0.5rem;
 }
 
 .subtitle {
-  color: #1c2a32; /* Your Slate */
-  font-size: 0.9rem;
+  color: #1c2a32;
+  font-size: 0.8rem;
   opacity: 0.7;
   margin-bottom: 2rem;
   text-transform: uppercase;
@@ -108,7 +113,7 @@ const handleLogin = async () => {
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
   text-align: left;
 }
 
@@ -116,17 +121,19 @@ const handleLogin = async () => {
   display: block;
   font-size: 0.85rem;
   color: #1c2a32;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
   font-weight: 600;
 }
 
 .input-group input {
   width: 100%;
-  padding: 0.8rem;
+  padding: 0.85rem;
   border: 1px solid #ddd;
-  border-radius: 6px;
+  border-radius: 8px;
   background-color: #fafafa;
-  transition: border-color 0.3s;
+  font-size: 1rem; /* prevents iOS zoom on focus */
+  transition: border-color 0.2s;
+  box-sizing: border-box;
 }
 
 .input-group input:focus {
@@ -139,10 +146,13 @@ const handleLogin = async () => {
   color: white;
   padding: 1rem;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s;
+  width: 100%;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .login-btn:hover {
@@ -157,7 +167,19 @@ const handleLogin = async () => {
 .error-text {
   color: #d9534f;
   font-size: 0.85rem;
-  margin-top: 1rem;
   text-align: center;
+  margin: 0;
+}
+
+/* ── Desktop ───────────────────────────── */
+@media (min-width: 480px) {
+  .login-card {
+    padding: 2.5rem;
+    max-width: 420px;
+  }
+
+  .brand-title {
+    font-size: 1.75rem;
+  }
 }
 </style>

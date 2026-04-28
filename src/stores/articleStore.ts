@@ -1,22 +1,6 @@
 import { defineStore } from 'pinia'
 import { supabase } from '@/supabase'
-
-export interface Article {
-  id: number
-  title: string
-  slug: string
-  district: string
-  content: string
-  category: string
-  image_url: string | null
-  created_at: string
-  lat?: number
-  long?: number
-  // ── Publishing ──────────────────────────────
-  is_published: boolean
-  scheduled_from: string | null
-  scheduled_to: string | null
-}
+import type { Article } from '@/types/article'
 
 interface ArticleState {
   items: Article[]
@@ -35,7 +19,7 @@ export const useArticleStore = defineStore('articles', {
     getArticleById: (state) => {
       return (id: string | number): Article | undefined => {
         const numericId = typeof id === 'string' ? parseInt(id, 10) : id
-        return state.items.find((item) => item.id === numericId)
+        return state.items.find((item) => item.id === id)
       }
     },
 

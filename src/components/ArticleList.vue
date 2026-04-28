@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import type { Article } from '@/composables/useAdminArticles'
+import type { Article } from '@/types/article';
 
 // ─── Sub-component: status badge ─────────────────────────────────────────────
 
