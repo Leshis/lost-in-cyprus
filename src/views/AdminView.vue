@@ -37,7 +37,7 @@
           @save-draft="uploadArticle(false)"
           @file-change="handleFileChange"
           @error="handleFormError"
-          @unpublish="unpublishArticle"
+          @toggle-publish="handleTogglePublish"
         />
 
         <p v-if="statusMsg" :class="['status', isError ? 'error' : 'success']">
@@ -91,7 +91,7 @@ const { articles, categories, districts, fetchArticles } = useAdminArticles()
 
 const {
   form, uploading, statusMsg, isError, editingId,
-  resetForm, handleEdit, handleFileChange, handleFormError, uploadArticle, unpublishArticle
+  resetForm, handleEdit, handleFileChange, handleFormError, uploadArticle, handleTogglePublish
 } = useArticleForm(fetchArticles)
 
 const { isModalOpen, articleToDelete, deleteError, openDeleteModal, closeModal, executeDelete } =

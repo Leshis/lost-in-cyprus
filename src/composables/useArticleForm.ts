@@ -69,27 +69,33 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
     }
   }
 
-  const unpublishArticle = async (): Promise<void> => {
+  const handleTogglePublish = async (): Promise<void> => {
     if (!editingId.value) return
+    // Determine the opposite of the current state
+    const newPublishState = !form.is_published
 
     try {
       uploading.value = true
-      statusMsg.value = 'Unpublishing...'
+      statusMsg.value = newPublishState ? 'Publishing...' : 'Unpublishing...'
       isError.value = false
 
       const { error } = await supabase
         .from('articles')
-        .update({ is_published: false })
+        .update({ is_published: newPublishState })
         .eq('id', editingId.value)
 
       if (error) throw error
-
-      statusMsg.value = 'Article unpublished.'
+      // Update the local form state so the UI reacts immediately
+      form.is_published = newPublishState
+      statusMsg.value = newPublishState ? 'Article published.' : 'Article unpublished.'
+      
       await onSuccess()
       setTimeout(() => resetForm(), 1500)
     } catch (err) {
       isError.value = true
-      statusMsg.value = err instanceof Error ? err.message : 'Failed to unpublish.'
+      statusMsg.value = err instanceof Error 
+        ? err.message 
+        : `Failed to ${newPublishState ? 'publish' : 'unpublish'}.`
     } finally {
       uploading.value = false
     }
@@ -127,7 +133,7 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
         long: form.long,
         scheduled_from: form.scheduled_from || null,
         scheduled_to: form.scheduled_to || null,
-        is_published: publish,  // 👈 key addition
+        is_published: publish,
       }
 
       if (editingId.value) {
@@ -164,6 +170,6 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
     form, uploading, statusMsg, isError,
     editingId, selectedFile,
     resetForm, handleEdit, handleFileChange,
-    handleFormError, uploadArticle, unpublishArticle, // 👈
+    handleFormError, uploadArticle, handleTogglePublish,
   }
 }

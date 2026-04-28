@@ -82,9 +82,14 @@
         {{ submitButtonText }}
       </button>
 
-      <button v-if="mode === 'edit'" type="button" @click="$emit('unpublish')" class="unpublish-btn"
-        :disabled="uploading">
-        Unpublish Article
+      <button 
+        v-if="mode === 'edit'" 
+        type="button" 
+        @click="$emit('toggle-publish')" 
+        :class="localForm.is_published ? 'unpublish-btn' : 'publish-toggle-btn'"
+        :disabled="uploading"
+      >
+        {{ localForm.is_published ? 'Unpublish Article' : 'Publish Article' }}
       </button>
     </div>
   </form>
@@ -95,7 +100,7 @@ import { computed, watch } from 'vue'
 import type { ArticleFormFields } from '../composables/useArticleForm'
 
 const props = defineProps<{
-  form: ArticleFormFields
+  form: ArticleFormFields & { is_published?: boolean } // Ensure your type has this property
   districts: string[]
   categories: string[]
   uploading: boolean
@@ -106,7 +111,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:form': [value: ArticleFormFields]
   'submit': []
-  'unpublish': []
+  'toggle-publish': [] // Updated event name
   'file-change': [event: Event]
   'error': [message: string]
 }>()
@@ -142,6 +147,7 @@ watch(
 </script>
 
 <style scoped>
+/* Previous styles remain unchanged */
 .article-form {
   display: flex;
   flex-direction: column;
@@ -244,6 +250,28 @@ textarea:focus {
 }
 
 .unpublish-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Added style for the Publish state of the toggle button */
+.publish-toggle-btn {
+  background: transparent;
+  color: #2e7d32;
+  border: 2px solid #2e7d32;
+  padding: 1.2rem;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.publish-toggle-btn:hover:not(:disabled) {
+  background: #e8f5e9;
+}
+
+.publish-toggle-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
