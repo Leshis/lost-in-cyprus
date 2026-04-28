@@ -76,7 +76,6 @@
 import { computed, ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import TheMenu from '@/components/TheMenu.vue';
-<script setup lang="ts">
 import { RouterView } from 'vue-router'
 import TheFooter from '@/components/TheFooter.vue'
 
