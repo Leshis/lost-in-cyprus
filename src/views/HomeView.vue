@@ -36,7 +36,7 @@
           :key="loc.id"
           class="location-card"
         >
-          <img :src="getImageUrl(loc.image_url)" :alt="loc.title" class="card-img" />
+          <img :src="getImageUrl(loc.image_url ?? '')" :alt="loc.title" class="card-img" />
 
           <div class="card-content">
             <span class="category-tag">{{ loc.category.replace('_', ' ') }}</span>
@@ -60,7 +60,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMapStore } from '@/stores/mapStore'
-import { useArticleStore } from '@/stores/articleStore'
+import { Article, useArticleStore } from '@/stores/articleStore'
 import CyprusMap from '@/components/CyprusMap.vue'
 import { getImageUrl } from '@/utils/supabaseHelpers'
 
@@ -120,7 +120,7 @@ const formatCategoryLabel = (cat: string): string => {
 
 const dynamicCategories = computed<Category[]>(() => {
   const unique = [...new Set(
-    (articleStore.items as Location[]).map(i => i.category).filter(Boolean)
+    articleStore.items.map(i => i.category).filter(Boolean)
   )]
   return [
     { id: 'all', label: 'All' },
@@ -140,8 +140,8 @@ const stripHtml = (html: string): string => {
   return div.innerText.replace(/\n+/g, ' ').trim()
 }
 
-const filteredLocations = computed<Location[]>(() =>
-  (articleStore.items as Location[]).filter(loc => {
+const filteredLocations = computed<Article[]>(() =>
+  articleStore.items.filter(loc => {
     const matchDistrict = !mapStore.selectedDistrict || loc.district === mapStore.selectedDistrict
     const matchCategory = activeFilter.value === 'all' || loc.category === activeFilter.value
     return matchDistrict && matchCategory
@@ -153,7 +153,7 @@ const resetFilters = (): void => {
   mapStore.setSelectedDistrict(null)
 }
 
-const handleAction = (loc: Location): void => {
+const handleAction = (loc: Article): void => {
   loc.affiliate_url
     ? window.open(loc.affiliate_url, '_blank')
     : router.push(`/article/${loc.slug}`)
