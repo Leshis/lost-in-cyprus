@@ -53,7 +53,7 @@ const handleSearch = () => {
   searchTimeout = setTimeout(async () => {
     const { data } = await supabase
       .from('articles')
-      .select('id, title, image_url')
+      .select('id, title, image_url, slug')
       .ilike('title', `%${searchQuery.value}%`)
       .limit(5);
     searchResults.value = data || [];
