@@ -9,26 +9,23 @@
 
         <!-- Desktop: Search + About -->
         <div class="desktop-nav">
+          <button v-if="showBack" class="nav-back-btn" @click="router.back()" aria-label="Go back">
+            ← Back
+          </button>
           <!-- Search -->
           <div class="search-wrapper" ref="searchWrapper">
             <div class="search-bar" :class="{ active: searchOpen }">
               <button class="search-icon-btn" @click="openSearch" aria-label="Search">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.35-4.35" />
                 </svg>
               </button>
-              <input
-                v-if="searchOpen"
-                ref="searchInput"
-                v-model="searchQuery"
-                type="text"
-                placeholder="Search Cyprus..."
-                class="search-input"
-                @keydown.escape="closeSearch"
-              />
+              <input v-if="searchOpen" ref="searchInput" v-model="searchQuery" type="text"
+                placeholder="Search Cyprus..." class="search-input" @keydown.escape="closeSearch" />
               <button v-if="searchOpen && searchQuery" class="clear-btn" @click="searchQuery = ''">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M18 6 6 18M6 6l12 12"/>
+                  <path d="M18 6 6 18M6 6l12 12" />
                 </svg>
               </button>
             </div>
@@ -36,19 +33,10 @@
             <!-- Search Results Dropdown -->
             <Transition name="dropdown">
               <div v-if="searchOpen && searchQuery && searchResults.length > 0" class="search-dropdown">
-                <router-link
-                  v-for="result in searchResults"
-                  :key="result.id"
-                  :to="`/article/${result.slug}`"
-                  class="search-result"
-                  @click="closeSearch"
-                >
-                  <img
-                    v-if="result.image_url"
-                    :src="getImageUrl(result.image_url)"
-                    :alt="result.title"
-                    class="result-thumb"
-                  />
+                <router-link v-for="result in searchResults" :key="result.id" :to="`/article/${result.slug}`"
+                  class="search-result" @click="closeSearch">
+                  <img v-if="result.image_url" :src="getImageUrl(result.image_url)" :alt="result.title"
+                    class="result-thumb" />
                   <div v-else class="result-thumb result-thumb--placeholder" />
                   <div class="result-text">
                     <span class="result-title">{{ result.title }}</span>
@@ -56,7 +44,8 @@
                   </div>
                 </router-link>
               </div>
-              <div v-else-if="searchOpen && searchQuery && searchResults.length === 0" class="search-dropdown search-empty">
+              <div v-else-if="searchOpen && searchQuery && searchResults.length === 0"
+                class="search-dropdown search-empty">
                 No results for "{{ searchQuery }}"
               </div>
             </Transition>
@@ -66,12 +55,7 @@
         </div>
 
         <!-- Mobile hamburger -->
-        <button
-          type="button"
-          class="hamburger-trigger"
-          aria-label="Open menu"
-          @click="isMenuOpen = true"
-        >
+        <button type="button" class="hamburger-trigger" aria-label="Open menu" @click="isMenuOpen = true">
           <div class="hamburger-lines">
             <span></span><span></span><span></span>
           </div>
@@ -79,11 +63,7 @@
       </div>
     </nav>
 
-    <TheMenu
-      :isOpen="isMenuOpen"
-      @close="isMenuOpen = false"
-      @navigate="handleNavigation"
-    />
+    <TheMenu :isOpen="isMenuOpen" @close="isMenuOpen = false" @navigate="handleNavigation" />
 
     <main class="main-content">
       <router-view />
@@ -108,6 +88,8 @@ const searchOpen = ref(false);
 const searchQuery = ref('');
 const searchInput = ref<HTMLInputElement | null>(null);
 const searchWrapper = ref<HTMLElement | null>(null);
+
+const showBack = computed(() => route.name === 'Article')
 
 const shouldHideNav = computed(() =>
   ['Admin', 'Login'].includes(route.name as string) ||
@@ -175,7 +157,7 @@ const handleNavigation = (target: string | object) => {
 
 /* ── Navbar ───────────────────────────── */
 .navbar {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -232,6 +214,25 @@ const handleNavigation = (target: string | object) => {
 .nav-link.router-link-active {
   background: #b57b52;
   color: white;
+}
+
+.nav-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #3d3d3d;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.nav-back-btn:hover {
+  background: rgba(0,0,0,0.06);
 }
 
 /* ── Search ───────────────────────────── */

@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { supabase } from '@/supabase'
-import type { Article } from './useAdminArticles'
+import type { Article } from '@/types/article'
 
 export function useDeleteModal(articles: import('vue').Ref<Article[]>) {
   const isModalOpen = ref(false)
