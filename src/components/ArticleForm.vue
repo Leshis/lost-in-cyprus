@@ -8,8 +8,8 @@
 
     <div class="field">
       <label for="article-slug">URL Slug</label>
-      <input id="article-slug" v-model="localForm.slug" type="text" placeholder="hidden-gems-akamas-peninsula"
-        required />
+      <input id="article-slug" v-model="localForm.slug" type="text" placeholder="hidden-gems-akamas-peninsula" required
+        @input="$emit('manual-slug')" />
       <span class="hint">The unique URL path (e.g., cyprusguide.com/articles/slug-name)</span>
     </div>
 
@@ -80,13 +80,8 @@
         {{ submitButtonText }}
       </button>
 
-      <button 
-        v-if="mode === 'edit'" 
-        type="button" 
-        @click="$emit('toggle-publish')" 
-        :class="localForm.is_published ? 'unpublish-btn' : 'publish-toggle-btn'"
-        :disabled="uploading"
-      >
+      <button v-if="mode === 'edit'" type="button" @click="$emit('toggle-publish')"
+        :class="localForm.is_published ? 'unpublish-btn' : 'publish-toggle-btn'" :disabled="uploading">
         {{ localForm.is_published ? 'Unpublish Article' : 'Publish Article' }}
       </button>
     </div>
@@ -113,6 +108,7 @@ const emit = defineEmits<{
   'toggle-publish': [] // Updated event name
   'file-change': [event: Event]
   'error': [message: string]
+  'manual-slug': []
 }>()
 
 // Dynamic button text based on mode and status

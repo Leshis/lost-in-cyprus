@@ -1,4 +1,4 @@
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import { supabase } from '@/supabase'
 import type { Article } from '@/types/article'
 
@@ -27,13 +27,28 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
   const selectedFile = ref<File | null>(null)
   const editingId = ref<string | null>(null)
 
+  // Inside useArticleForm.ts
+  const isSlugCustom = ref(false) // The lock
+
+  // Modify your resetForm to unlock the slug for the next new article
   const resetForm = () => {
-    Object.assign(form, EMPTY_FORM)
-    selectedFile.value = null
     editingId.value = null
-    statusMsg.value = ''
-    isError.value = false
+    isSlugCustom.value = false // 👈 Unlock it here
+    Object.assign(form, EMPTY_FORM)
+    if (statusMsg) statusMsg.value = ''
   }
+
+  // Update the watcher to check the lock
+  watch(() => form.title, (newTitle) => {
+    if (!editingId.value && !isSlugCustom.value) {
+      form.slug = newTitle
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_-]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+    }
+  })
 
   const formatForInput = (dateString: string | null | undefined) => {
     if (!dateString) return null
@@ -190,7 +205,7 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
   }
 
   return {
-    form, uploading, statusMsg, isError,
+    form, isSlugCustom, uploading, statusMsg, isError,
     editingId, selectedFile,
     resetForm, handleEdit, handleFileChange,
     handleFormError, uploadArticle, handleTogglePublish,

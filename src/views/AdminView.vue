@@ -38,6 +38,7 @@
           @file-change="handleFileChange"
           @error="handleFormError"
           @toggle-publish="handleTogglePublish"
+          @manual-slug="isSlugCustom = true"
         />
 
         <p v-if="statusMsg" :class="['status', isError ? 'error' : 'success']">
@@ -90,7 +91,7 @@ const activeTab = ref<'list' | 'create'>('list')
 const { articles, categories, districts, fetchArticles } = useAdminArticles()
 
 const {
-  form, uploading, statusMsg, isError, editingId,
+  form, isSlugCustom, uploading, statusMsg, isError, editingId,
   resetForm, handleEdit, handleFileChange, handleFormError, uploadArticle, handleTogglePublish
 } = useArticleForm(fetchArticles)
 
