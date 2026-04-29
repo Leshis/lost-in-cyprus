@@ -48,7 +48,7 @@ export const useArticleStore = defineStore('articles', {
       this.error = null
       try {
         const { data, error } = await supabase
-          .from('article_details')
+          .from('articles')
           .select('*')
           .order('created_at', { ascending: false })
 
