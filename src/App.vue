@@ -43,7 +43,7 @@ const handleNavigation = (target: string | object) => {
 #app-container {
   display: flex;              /* ← fixes the footer bounce */
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100svh;
   background-color: #f8f6f0;
 }
 
