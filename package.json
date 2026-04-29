@@ -12,6 +12,7 @@
     "lint:eslint": "eslint . --fix --cache"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "@supabase/supabase-js": "^2.40.0",
     "@unhead/vue": "^3.0.5",
     "pinia": "^3.0.4",
