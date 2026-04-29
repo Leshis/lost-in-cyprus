@@ -31,6 +31,7 @@ const router = useRouter()
 const articleStore = useArticleStore()
 
 const isLoading = ref(false)
+const isPreview = route.name === 'ArticlePreview'
 const error = ref<string | null>(null)
 
 const currentSlug = computed(() => route.params.slug as string)
@@ -51,19 +52,19 @@ useHead({
 })
 
 const loadData = async (slug: string) => {
-  // FIX: Guard against missing or stringified-undefined slugs at the call site
   if (!slug || slug === 'undefined') return
-
-  // Already cached — no fetch needed
   if (articleStore.getArticleBySlug(slug)) return
 
   isLoading.value = true
   error.value = null
 
   try {
-    await articleStore.fetchArticleBySlug(slug)
+    if (isPreview) {
+      await articleStore.fetchArticleBySlugAdmin(slug)
+    } else {
+      await articleStore.fetchArticleBySlug(slug)
+    }
   } catch (err) {
-    console.error('Failed to load article:', err)
     error.value = 'Failed to load this secret. Please try again.'
   } finally {
     isLoading.value = false
@@ -117,15 +118,15 @@ const goBack = () => {
   display: flex;
   align-items: center;
   padding: 12px 16px;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.45), transparent);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.45), transparent);
 }
 
 .back-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255,255,255,0.35);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.35);
   color: #fff;
   padding: 6px 12px;
   border-radius: 20px;
@@ -138,8 +139,8 @@ const goBack = () => {
 }
 
 .back-btn:hover {
-  background: rgba(255,255,255,0.28);
-  border-color: rgba(255,255,255,0.6);
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.6);
 }
 
 .back-btn:focus-visible {
@@ -155,7 +156,7 @@ const goBack = () => {
 .hero-overlay {
   position: relative;
   z-index: 1;
-  background: linear-gradient(transparent, rgba(0,0,0,0.78));
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.78));
   width: 100%;
   padding: 32px 16px 16px;
   color: #fff;
@@ -176,9 +177,9 @@ const goBack = () => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255,255,255,0.3);
-  color: rgba(255,255,255,0.9);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }

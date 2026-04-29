@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { supabase } from '@/supabase'
+import { supabaseAdmin } from '@/supabaseAdmin'
 import type { Article } from '@/types/article'
 
 interface ArticleState {
@@ -88,6 +89,33 @@ export const useArticleStore = defineStore('articles', {
         const message = err instanceof Error ? err.message : 'Failed to fetch article'
         this.error = message
         console.error('fetchArticleBySlug:', message)
+      } finally {
+        this.loading = false
+      }
+    },
+    async fetchArticleBySlugAdmin(slug: string): Promise<void> {
+      this.loading = true
+      this.error = null
+      try {
+        const { data, error } = await supabaseAdmin
+          .from('articles')
+          .select('*')
+          .eq('slug', slug)
+          .maybeSingle()
+
+        if (error) throw error
+        if (data) {
+          const typed = data as Article
+          const index = this.items.findIndex((item) => item.slug === slug)
+          if (index !== -1) {
+            this.items[index] = typed
+          } else {
+            this.items.push(typed)
+          }
+        }
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to fetch article'
+        this.error = message
       } finally {
         this.loading = false
       }

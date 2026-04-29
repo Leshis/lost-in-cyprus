@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import { supabase } from '@/supabase';
+import { supabaseAdmin } from '@/supabaseAdmin'
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -32,6 +32,12 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/gate/preview/:slug',
+      name: 'ArticlePreview',
+      component: () => import('../views/ArticleView.vue'),
+      meta: { requiresAuth: true } 
+    },
+    {
       path: '/login',
       name: 'Login',
       component: () => import('../views/LoginView.vue')
@@ -40,7 +46,7 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to) => {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supabaseAdmin.auth.getSession();
 
   if (to.meta.requiresAuth && !session) {
     return '/login';

@@ -16,7 +16,7 @@
 
         <div class="menu-body">
           <router-link to="/about" class="menu-item" @click="emit('close')">ABOUT ME</router-link>
-          <SearchBar @select="(id: string) => emit('navigate', id)" />
+          <SearchBar />
         </div>
 
         <div class="menu-footer">
@@ -36,7 +36,6 @@ defineProps<{
 
 const emit = defineEmits<{
   close: []
-  navigate: [id: string]
 }>()
 </script>
 

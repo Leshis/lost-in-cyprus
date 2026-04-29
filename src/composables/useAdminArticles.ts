@@ -1,5 +1,5 @@
 import { ref, onMounted } from 'vue'
-import { supabase } from '@/supabase'
+import { supabaseAdmin } from '@/supabaseAdmin'
 import { processEnum } from '@/utils/articleHelpers'
 import type { Article } from '@/types/article'
 
@@ -9,7 +9,7 @@ export function useAdminArticles() {
   const districts = ref<string[]>([])
 
   const fetchArticles = async (): Promise<void> => {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('articles')
       .select('*')
       .order('created_at', { ascending: false })
@@ -22,7 +22,7 @@ export function useAdminArticles() {
   }
 
   const fetchEnums = async (): Promise<void> => {
-    const { data: catData, error: catError } = await supabase.rpc('get_enum_values', {
+    const { data: catData, error: catError } = await supabaseAdmin.rpc('get_enum_values', {
       type_name: 'category_type',
     })
     if (catError) {
@@ -31,7 +31,7 @@ export function useAdminArticles() {
       categories.value = processEnum(catData, ['hiking', 'food', 'culture', 'wine'])
     }
 
-    const { data: distData, error: distError } = await supabase.rpc('get_enum_values', {
+    const { data: distData, error: distError } = await supabaseAdmin.rpc('get_enum_values', {
       type_name: 'district',
     })
     if (distError) {

@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { supabase } from '@/supabase'
+import { supabaseAdmin } from '@/supabaseAdmin'
 import { useRouter } from 'vue-router'
 import type { AuthError } from '@supabase/supabase-js'
 
@@ -56,7 +56,7 @@ const handleLogin = async (): Promise<void> => {
     loading.value = true  // ← was loading.ref = true (bug)
     errorMsg.value = ''
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabaseAdmin.auth.signInWithPassword({
       email: email.value,
       password: password.value,
     })

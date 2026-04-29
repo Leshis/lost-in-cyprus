@@ -1,12 +1,7 @@
 <template>
   <div class="manage-section">
     <div class="search-bar">
-      <input
-        v-model="searchQuery"
-        type="text"
-        placeholder="Search articles by title…"
-        aria-label="Search articles"
-      />
+      <input v-model="searchQuery" type="text" placeholder="Search articles by title…" aria-label="Search articles" />
     </div>
 
     <ul class="article-list" role="list" aria-label="Articles list">
@@ -20,15 +15,12 @@
         No articles found.
       </li>
 
-      <li
-        v-for="article in filteredArticles"
-        :key="article.id"
-        class="article-row"
-      >
+      <li v-for="article in filteredArticles" :key="article.id" class="article-row">
         <span class="col-title" :title="article.title">{{ article.title }}</span>
         <StatusBadge :status="resolveStatus(article)" />
         <div class="col-actions">
           <button class="btn btn--edit" @click="$emit('edit', article)">Edit</button>
+          <a class="btn btn--preview" :href="`#/gate/preview/${article.slug}`" target="_blank">Preview</a>
           <button class="btn btn--delete" @click="$emit('delete', article.id)">Delete</button>
         </div>
       </li>
@@ -47,9 +39,9 @@ const StatusBadge = defineComponent({
   setup(props) {
     const label: Record<ArticleStatus, string> = {
       published: 'Published',
-      draft:     'Draft',
+      draft: 'Draft',
       scheduled: 'Scheduled',
-      expired:   'Expired',
+      expired: 'Expired',
     }
     return () =>
       h('span', { class: `status-badge status-badge--${props.status}` }, label[props.status])
@@ -67,7 +59,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  'edit':   [article: Article]
+  'edit': [article: Article]
   'delete': [id: string]
 }>()
 
@@ -84,12 +76,12 @@ const filteredArticles = computed<Article[]>(() =>
 // ─── Status resolution ────────────────────────────────────────────────────────
 
 function resolveStatus(article: Article): ArticleStatus {
-  const now  = new Date()
+  const now = new Date()
   const from = article.scheduled_from ? new Date(article.scheduled_from) : null
-  const to   = article.scheduled_to   ? new Date(article.scheduled_to)   : null
+  const to = article.scheduled_to ? new Date(article.scheduled_to) : null
 
   if (!article.is_published) return 'draft'
-  if (to && now > to)     return 'expired'
+  if (to && now > to) return 'expired'
   if (from && now < from) return 'scheduled'
   return 'published'
 }
@@ -292,5 +284,15 @@ export default defineComponent({ name: 'ManageArticles' })
 
 .btn--ghost:hover {
   background: #f7fafc;
+}
+
+.btn--preview {
+  background: #faf5eb;
+  color: #b57b52;
+  text-decoration: none;
+}
+
+.btn--preview:hover {
+  background: #f5e6d0;
 }
 </style>

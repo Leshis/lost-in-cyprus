@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { supabase } from '@/supabase'
+import { supabaseAdmin } from '@/supabaseAdmin'
 import type { Article } from '@/types/article'
 
 export function useDeleteModal(articles: import('vue').Ref<Article[]>) {
@@ -22,7 +22,7 @@ export function useDeleteModal(articles: import('vue').Ref<Article[]>) {
   // Add this helper inside useArticleForm
   const deleteImageFromStorage = async (path: string) => {
     try {
-      const { error } = await supabase.storage
+      const { error } = await supabaseAdmin.storage
         .from('articles')
         .remove([path]) // remove() expects an array of paths
 
@@ -36,7 +36,7 @@ export function useDeleteModal(articles: import('vue').Ref<Article[]>) {
     if (!articleToDelete.value) return
 
     const { id } = articleToDelete.value
-    const { error } = await supabase.from('articles').delete().eq('id', id)
+    const { error } = await supabaseAdmin.from('articles').delete().eq('id', id)
 
     if (error) {
       console.error('Delete failed:', error.message)

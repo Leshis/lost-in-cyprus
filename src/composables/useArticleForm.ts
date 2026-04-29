@@ -1,5 +1,5 @@
 import { ref, reactive, watch } from 'vue'
-import { supabase } from '@/supabase'
+import { supabaseAdmin } from '@/supabaseAdmin'
 import type { Article } from '@/types/article'
 
 export type ArticleFormFields = Omit<Article, 'id' | 'created_at'>
@@ -106,7 +106,7 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
       statusMsg.value = newPublishState ? 'Publishing...' : 'Unpublishing...'
       isError.value = false
 
-      const { error } = await supabase
+      const { error } = await supabaseAdmin
         .from('articles')
         .update({ is_published: newPublishState })
         .eq('id', editingId.value)
@@ -147,7 +147,7 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
         const ext = selectedFile.value.name.split('.').pop()
         const fileName = `${crypto.randomUUID()}.${ext}`
 
-        const { error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabaseAdmin.storage
           .from('articles')
           .upload(fileName, selectedFile.value)
 
@@ -169,7 +169,7 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
       }
 
       if (editingId.value) {
-        const { error } = await supabase
+        const { error } = await supabaseAdmin
           .from('articles')
           .update({
             ...articlePayload,
@@ -184,7 +184,7 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
         if (imagePath && oldImagePath) {
           // We don't "await" this or "throw" here because the DB update 
           // is already successful; a storage failure shouldn't break the UI.
-          supabase.storage
+          supabaseAdmin.storage
             .from('articles')
             .remove([oldImagePath])
             .then(({ error: delError }) => {
@@ -195,7 +195,7 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
         statusMsg.value = publish ? 'Article published!' : 'Draft saved!'
       } else {
         if (!imagePath) throw new Error('Please select an image.')
-        const { error } = await supabase
+        const { error } = await supabaseAdmin
           .from('articles')
           .insert([{ ...articlePayload, image_url: imagePath }])
 
