@@ -56,6 +56,9 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
   }
 
   const handleEdit = (article: Article) => {
+    // 1. Wipe the "New Article" data from the form first
+    resetForm()
+
     let extractedLat = article.lat
     let extractedLong = article.long
 
@@ -67,6 +70,7 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
       }
     }
 
+    // 2. Populate with the specific article data
     Object.assign(form, {
       ...article,
       lat: extractedLat ?? null,
@@ -75,7 +79,13 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
       scheduled_to: formatForInput(article.scheduled_to),
     })
 
+    // 3. Set the ID and lock the slug generator
     editingId.value = article.id
+    isSlugCustom.value = true
+
+    // 4. Clear any status messages from previous actions
+    statusMsg.value = ''
+    isError.value = false
   }
 
   const handleFileChange = (event: Event) => {
