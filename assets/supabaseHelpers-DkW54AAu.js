@@ -1,1 +1,0 @@
-var e=e=>e?`https://bwxqxgjwpsurptaduwii.supabase.co/storage/v1/object/public/articles/${e}`:`https://placehold.jp/24/1c2a32/ffffff/150x150.png?text=LostInCyprus`;export{e as t};
