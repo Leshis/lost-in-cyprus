@@ -1,162 +1,98 @@
 <template>
   <footer class="site-footer">
     <div class="footer-content">
-      <div class="footer-brand">
-        <h2 class="logo-text">Lost in <span>Cyprus</span></h2>
-        <p class="tagline">Uncovering the island's best-kept secrets, one spot at a time.</p>
+      <div class="footer-links">
+        <router-link to="/about">About</router-link>
+        <router-link to="/contact">Contact</router-link>
+        <router-link to="/privacy">Privacy Policy</router-link>
       </div>
 
       <div class="footer-socials">
-        <a href="https://instagram.com/lostincyprus" target="_blank" class="social-link" aria-label="Instagram">
-          <i class="social-icon insta"></i>
-          <span>Instagram</span>
+        <a href="https://instagram.com/lostincyprus" target="_blank" aria-label="Instagram">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+          </svg>
+          Instagram
         </a>
-        <a href="https://tiktok.com/@lostincyprus" target="_blank" class="social-link" aria-label="TikTok">
-          <i class="social-icon tiktok"></i>
-          <span>TikTok</span>
+        <a href="https://tiktok.com/@lostincyprus" target="_blank" aria-label="TikTok">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z" />
+          </svg>
+          TikTok
         </a>
       </div>
 
-      <nav class="footer-nav">
-        <div class="nav-group">
-          <h4>Platform</h4>
-          <router-link to="/about">About the Project</router-link>
-          <router-link to="/contact">Get in Touch</router-link>
-          <router-link to="/map">Discovery Map</router-link>
-        </div>
-        <div class="nav-group">
-          <h4>Legal</h4>
-          <router-link to="/privacy">Privacy Policy</router-link>
-          <router-link to="/terms">Terms of Service</router-link>
-        </div>
-      </nav>
-
-      <div class="footer-newsletter">
-        <h4>Don't miss a secret</h4>
-        <div class="input-group">
-          <input type="email" placeholder="Your email..." />
-          <button type="button">Join</button>
-        </div>
-      </div>
-
-      <div class="footer-bottom">
-        <p>&copy; {{ currentYear }} Lost in Cyprus.</p>
-        <p class="tech-stack">Built with Vue & Vite ⚡️</p>
-      </div>
+      <p class="footer-copy">&copy; {{ currentYear }} Lost in Cyprus</p>
     </div>
   </footer>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
-
 const currentYear = computed(() => new Date().getFullYear());
 </script>
 
 <style scoped>
 .site-footer {
-  background: #1a202c; /* Deep charcoal for high contrast */
-  color: #edf2f7;
-  padding: 3rem 1.5rem 1.5rem;
-  font-family: 'Inter', sans-serif;
+  position: relative;
+  padding: 2rem 1.5rem 2rem;
+  text-align: center;
+
+  /* Fade in from the page background */
+  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.04) 40%, rgba(0, 0, 0, 0.07));
+}
+
+/* Top fade shadow line */
+.site-footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.08), transparent);
 }
 
 .footer-content {
-  max-width: 800px;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.logo-text { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.02em; }
-.logo-text span { color: #b57b52; }
-.tagline { color: #a0aec0; font-size: 0.9rem; margin-top: 0.5rem; max-width: 300px; }
-
-/* Socials: Mobile First */
+.footer-links,
 .footer-socials {
   display: flex;
-  gap: 1rem;
-}
-
-.social-link {
-  flex: 1;
-  display: flex;
-  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
-  background: #2d3748;
-  padding: 0.75rem;
-  border-radius: 12px;
-  text-decoration: none;
-  color: white;
-  font-weight: 700;
-  font-size: 0.9rem;
-  transition: transform 0.2s;
 }
 
-.social-link:active { transform: scale(0.95); }
-
-/* Navigation */
-.footer-nav {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-}
-
-.nav-group h4 {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #718096;
-  margin-bottom: 1rem;
-}
-
-.nav-group a {
-  display: block;
-  color: #cbd5e0;
-  text-decoration: none;
-  font-size: 0.95rem;
-  margin-bottom: 0.75rem;
-}
-
-/* Newsletter */
-.footer-newsletter h4 { font-size: 0.9rem; margin-bottom: 0.75rem; }
-.input-group { display: flex; gap: 8px; }
-.input-group input {
-  flex: 1;
-  background: #2d3748;
-  border: none;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  color: white;
-}
-.input-group button {
-  background: #b57b52;
-  border: none;
-  color: white;
-  padding: 0 1.25rem;
-  border-radius: 8px;
-  font-weight: 700;
-}
-
-/* Bottom Bar */
-.footer-bottom {
-  border-top: 1px solid #2d3748;
-  padding-top: 1.5rem;
+.footer-links a,
+.footer-socials a {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  font-size: 0.75rem;
-  color: #718096;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #6b7280;
+  text-decoration: none;
+  transition: color 0.2s;
 }
 
-.tech-stack { font-style: italic; }
+.footer-links a:hover,
+.footer-socials a:hover {
+  color: #b57b52;
+}
 
-/* Tablet/Desktop Tweaks */
-@media (min-width: 600px) {
-  .footer-content { flex-direction: row; flex-wrap: wrap; justify-content: space-between; }
-  .footer-brand, .footer-newsletter { flex: 1 1 100%; }
-  .footer-socials, .footer-nav { flex: 1; }
+.footer-socials {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding-top: 1rem;
+}
+
+.footer-copy {
+  font-size: 0.75rem;
+  color: #9ca3af;
 }
 </style>
