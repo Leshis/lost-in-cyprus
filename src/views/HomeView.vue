@@ -166,13 +166,13 @@ const handleAction = (loc: Article): void => {
 .app-container {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  min-height: 100svh;
   width: 100%;
   background-color: #f8f6f0;
 }
 
 .map-section {
-  height: 45dvh;
+  height: 45svh;
   min-height: 280px;
   background-color: #fdfcf8;
   display: flex;
