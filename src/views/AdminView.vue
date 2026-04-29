@@ -27,6 +27,7 @@
         </p>
 
         <ArticleForm
+          :key="editingId || 'new-article'" 
           v-model:form="form"
           :mode="editingId ? 'edit' : 'create'"
           :districts="districts"
