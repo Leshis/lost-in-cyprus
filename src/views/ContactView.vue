@@ -102,11 +102,11 @@ const handleSubmit = async () => {
 
 <style scoped>
 .contact-page {
-  min-height: 100vh;
+  min-height: 100svh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 2rem 1.5rem;
+  padding: 6rem 1.5rem 4rem;
 }
 
 .contact-card {
