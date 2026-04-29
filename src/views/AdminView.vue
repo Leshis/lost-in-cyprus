@@ -70,7 +70,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useHead } from '@unhead/vue'
-import { supabase } from '../supabase'
+import { supabaseAdmin } from '../supabaseAdmin'
 import { useAdminArticles } from '@/composables/useAdminArticles'
 import { useArticleForm } from '@/composables/useArticleForm'
 import { useDeleteModal } from '@/composables/useDeleteModal'
@@ -109,7 +109,7 @@ const handleEditAndSwitch = (article: Article) => {
 }
 
 const handleLogout = async () => {
-  await supabase.auth.signOut()
+  await supabaseAdmin.auth.signOut()
   router.push('/login')
 }
 </script>
