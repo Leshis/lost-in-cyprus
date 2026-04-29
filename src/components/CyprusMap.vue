@@ -121,6 +121,44 @@ const selectDistrictGuarded = (id: string): void => {
   opacity: 0.7;
 }
 
+.map-content-area {
+  position: relative; /* Necessary for the pseudo-element positioning */
+  width: 100%;
+  height: 100%;
+  max-width: 900px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow: hidden; /* Keeps the lines contained */
+  
+  /* The Background Lines */
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 40px,
+    rgba(148, 163, 184, 0.05) 40px,
+    rgba(148, 163, 184, 0.05) 41px
+  );
+}
+
+/* Optional: Add a few "irregular" lines using a pseudo-element */
+.map-content-area::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: 
+    linear-gradient(90deg, transparent 20%, rgba(148, 163, 184, 0.1) 20.1%, transparent 20.2%),
+    linear-gradient(0deg, transparent 15%, rgba(148, 163, 184, 0.08) 15.1%, transparent 15.2%),
+    linear-gradient(0deg, transparent 85%, rgba(148, 163, 184, 0.08) 85.1%, transparent 85.2%);
+  background-size: 100% 100%;
+}
+
+
 @media (hover: hover) and (pointer: fine) {
   .district:hover {
     fill: #b57b52;
