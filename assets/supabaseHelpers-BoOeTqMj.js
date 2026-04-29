@@ -1,1 +1,0 @@
-import{n as e}from"./supabaseAdmin-bC31sT2C.js";var t=e(void 0,void 0,{auth:{persistSession:!1,autoRefreshToken:!1}}),n=e=>e?`https://bwxqxgjwpsurptaduwii.supabase.co/storage/v1/object/public/articles/${e}`:`https://placehold.jp/24/1c2a32/ffffff/150x150.png?text=LostInCyprus`;export{t as n,n as t};
