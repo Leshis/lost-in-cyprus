@@ -88,12 +88,29 @@ export function useArticleForm(onSuccess: () => Promise<void>) {
     isError.value = false
   }
 
-  const handleFileChange = (event: Event) => {
-    const target = event.target as HTMLInputElement
-    if (target.files?.length) {
-      selectedFile.value = target.files[0]
-    }
+  const handleFileChange = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+
+  const bitmap = await createImageBitmap(file)
+  const canvas = document.createElement('canvas')
+  canvas.width = bitmap.width
+  canvas.height = bitmap.height
+  canvas.getContext('2d')!.drawImage(bitmap, 0, 0)
+
+  const webpBlob = await new Promise<Blob | null>(resolve =>
+    canvas.toBlob(resolve, 'image/webp', 0.85)
+  )
+
+  if (webpBlob) {
+    selectedFile.value = new File(
+      [webpBlob],
+      file.name.replace(/\.[^.]+$/, '.webp'),
+      { type: 'image/webp' }
+    )
   }
+}
 
 
   const handleTogglePublish = async (): Promise<void> => {
