@@ -18,11 +18,12 @@ export const useArticleStore = defineStore('articles', {
 
   getters: {
     getArticleById: (state) => {
-      return (id: string | number): Article | undefined => {
-        const numericId = typeof id === 'string' ? parseInt(id, 10) : id
-        return state.items.find((item) => item.id === id)
-      }
-    },
+  return (id: string | number): Article | undefined => {
+    const numericId = typeof id === 'string' ? parseInt(id, 10) : id
+    return state.items.find((item) => item.id === numericId) // ← fix
+  }
+},
+
 
     getArticleBySlug: (state) => {
       return (slug: string): Article | undefined =>
