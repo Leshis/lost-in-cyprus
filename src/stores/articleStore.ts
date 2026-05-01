@@ -6,7 +6,7 @@ import type { Article } from '@/types/article'
 interface ArticleState {
   items: Article[]
   loading: boolean
-  error: string | null       // surface errors instead of only console.error
+  error: string | null
 }
 
 export const useArticleStore = defineStore('articles', {
@@ -18,19 +18,17 @@ export const useArticleStore = defineStore('articles', {
 
   getters: {
     getArticleById: (state) => {
-  return (id: string | number): Article | undefined => {
-    const numericId = typeof id === 'string' ? parseInt(id, 10) : id
-    return state.items.find((item) => item.id === numericId) // ← fix
-  }
-},
-
+      return (id: string | number): Article | undefined => {
+        const numericId = typeof id === 'string' ? parseInt(id, 10) : id
+        return state.items.find((item) => item.id === numericId)
+      }
+    },
 
     getArticleBySlug: (state) => {
       return (slug: string): Article | undefined =>
         state.items.find((item) => item.slug === slug)
     },
 
-    // Convenience getters that use the same logic as resolveStatus() in your table
     publishedArticles: (state): Article[] => {
       const now = new Date()
       return state.items.filter((a) => {
@@ -94,6 +92,7 @@ export const useArticleStore = defineStore('articles', {
         this.loading = false
       }
     },
+
     async fetchArticleBySlugAdmin(slug: string): Promise<void> {
       this.loading = true
       this.error = null
@@ -115,8 +114,9 @@ export const useArticleStore = defineStore('articles', {
           }
         }
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to fetch article'
+        const message = err instanceof Error ? err.message : 'Failed to fetch article (admin)'
         this.error = message
+        console.error('fetchArticleBySlugAdmin:', message)
       } finally {
         this.loading = false
       }
