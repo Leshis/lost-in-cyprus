@@ -1,13 +1,43 @@
-/* 1. GLOBAL VARIABLES & RESET */
+/* ─── 1. GLOBAL VARIABLES ───────────────────────────────────────────────── */
 :root {
-  --primary-blue: #0088ff;
-  --dark-bg: #333;
-  --light-bg: #f4f4f4;
-  --text-white: #ffffff;
-  --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  --radius: 12px;
+  /* Brand */
+  --color-navy:        #1c2a32;
+  --color-gold:        #c69f4b;
+  --color-gold-muted:  rgba(198, 159, 75, 0.13);
+
+  /* Backgrounds */
+  --bg-warm:           #f8f6f0;
+  --bg-warm-light:     #fdfcf8;
+  --bg-card:           #ffffff;
+
+  /* Text */
+  --text-primary:      #1a1a1a;
+  --text-body:         #666666;
+  --text-muted:        #999999;
+  --text-white:        #ffffff;
+
+  /* Borders */
+  --border-light:      #eeeeee;
+  --border-mid:        #e0e0e0;
+
+  /* Shadows */
+  --shadow:            0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-card:       0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-lift:       -5px 0 15px rgba(0, 0, 0, 0.05);
+
+  /* Radii */
+  --radius:            12px;
+  --radius-sm:         6px;
+  --radius-pill:       20px;
+
+  /* Legacy / kept for compatibility */
+  --primary-blue:      #0088ff;
+  --dark-bg:           #333;
+  --light-bg:          #f4f4f4;
 }
 
+
+/* ─── 2. RESET ──────────────────────────────────────────────────────────── */
 * {
   margin: 0;
   padding: 0;
@@ -17,20 +47,24 @@
   box-sizing: border-box;
 }
 
+
+/* ─── 3. BASE ───────────────────────────────────────────────────────────── */
 html {
   scroll-behavior: smooth;
 }
 
 body {
- -webkit-font-smoothing: antialiased;
+  -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
   margin: 0;
   font-family: 'Segoe UI', system-ui, sans-serif;
-  background-color: var(--light-bg);
-  color: #333;
+  background-color: var(--bg-warm);
+  color: var(--text-primary);
 }
 
+
+/* ─── 4. LAYOUT ─────────────────────────────────────────────────────────── */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -40,31 +74,65 @@ body {
   margin: 0 auto;
 }
 
-/* 4. COMPONENTS (Cards, Buttons, Badges) */
+
+/* ─── 5. COMPONENTS ─────────────────────────────────────────────────────── */
+
+/* Card — structural shell only, specifics stay in components */
 .card {
-  background: white;
-  border: 1px solid #eee;
-  padding: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
 }
 
+/* Primary button — navy fill */
 .btn {
   display: inline-block;
-  margin-top: 15px;
-  padding: 10px 20px;
-  background: var(--primary-blue);
+  padding: 8px 16px;
+  background: var(--color-navy);
   color: var(--text-white);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  cursor: pointer;
   text-decoration: none;
-  border-radius: 6px;
   transition: opacity 0.2s;
 }
 
-.btn:hover { opacity: 0.9; }
+.btn:hover {
+  opacity: 0.85;
+}
 
+/* Gold accent button */
+.btn-gold {
+  background: var(--color-gold);
+  color: var(--text-white);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-gold:hover {
+  opacity: 0.85;
+}
+
+/* Category tag — gold uppercase label used across cards and articles */
+.category-tag {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+/* Badge — muted meta info */
 .badge {
   display: block;
   margin-top: 10px;
-  color: #999;
+  color: var(--text-muted);
   font-size: 0.8rem;
 }
