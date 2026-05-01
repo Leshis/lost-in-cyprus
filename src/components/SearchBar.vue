@@ -79,7 +79,7 @@ watch(searchQuery, (q) => {
   }
   searchTimeout = setTimeout(async () => {
     const { data } = await supabase
-      .from('article_details')
+      .from('articles')
       .select('*')
       .ilike('title', `%${q}%`)
       .limit(6);
